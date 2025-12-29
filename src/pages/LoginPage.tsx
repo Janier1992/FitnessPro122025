@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { supabase } from '../lib/supabase';
 import {
     FitnessFlowLogo,
     MailIcon,
@@ -21,21 +22,35 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToRegister, onLo
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
         if (!email || !password) {
             setError('Por favor, completa todos los campos.');
             return;
         }
-        if (!/^\S+@\S+\.\S+$/.test(email)) {
-            setError('Por favor, ingresa un correo electrónico válido.');
-            return;
+
+        try {
+            const { data, error: authError } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            if (authError) throw authError;
+
+            if (data.user) {
+                console.log('Login exitoso:', data.user);
+                // Notificar a App.tsx (que buscará el usuario o lo cargará)
+                // NOTA: Como App.tsx usa estado local, idealmente aquí buscaríamos el perfil
+                // y lo pasaríamos, pero por ahora mantenemos el contrato por email.
+                onLoginSuccess({ email: data.user.email!, accountType });
+            }
+        } catch (err: any) {
+            console.error('Login error:', err);
+            setError(err.message === 'Invalid login credentials'
+                ? 'Credenciales incorrectas. Verifica tu correo y contraseña.'
+                : 'Error al iniciar sesión: ' + err.message);
         }
-        console.log(`Simulando inicio de sesión para ${accountType}:`, { email });
-        // En una aplicación real, aquí se haría una llamada a la API.
-        // Si la autenticación es exitosa:
-        onLoginSuccess({ email, accountType });
     };
 
 
@@ -51,7 +66,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToRegister, onLo
                 </div>
 
                 <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-xl shadow-2xl p-8 border border-white/50 dark:border-slate-700 transition-colors">
-                     <div className="flex bg-slate-100 dark:bg-slate-700 p-1 rounded-full mb-6" role="group" aria-label="Seleccionar tipo de cuenta">
+                    <div className="flex bg-slate-100 dark:bg-slate-700 p-1 rounded-full mb-6" role="group" aria-label="Seleccionar tipo de cuenta">
                         <button
                             onClick={() => setAccountType('user')}
                             aria-pressed={accountType === 'user'}
@@ -66,7 +81,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToRegister, onLo
                         >
                             Gimnasio
                         </button>
-                         <button
+                        <button
                             onClick={() => setAccountType('entrenador')}
                             aria-pressed={accountType === 'entrenador'}
                             className={`flex-1 py-3 rounded-full font-bold text-sm transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary ${accountType === 'entrenador' ? 'bg-white dark:bg-slate-600 shadow text-brand-primary-dark dark:text-white' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'}`}
@@ -81,7 +96,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToRegister, onLo
                     </div>
 
                     <div className="space-y-4">
-                         <button
+                        <button
                             onClick={onGoogleLogin}
                             className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-white font-bold hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary min-h-[44px]"
                         >

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import { User } from '../types';
-import { 
-    FitnessFlowLogo, 
-    UserIcon, 
-    MailIcon, 
+import {
+    FitnessFlowLogo,
+    UserIcon,
+    MailIcon,
     LockIcon,
     GymIcon,
     NitIcon,
@@ -71,7 +72,7 @@ const initialCoachData = { nombre: '', cc: '', profession: '', professionalDescr
 
 export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigateToLogin, onRegisterSuccess, onGoogleLogin, initialAccountType, initialPlan }) => {
     const [accountType, setAccountType] = useState<'user' | 'gym' | 'entrenador'>(initialAccountType);
-    
+
     // States for each form
     const [userData, setUserData] = useState(initialUserData);
     const [userErrors, setUserErrors] = useState<UserErrorData>({});
@@ -83,7 +84,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigateToLogin, o
     useEffect(() => {
         setAccountType(initialAccountType);
     }, [initialAccountType]);
-    
+
     // --- Change Handlers ---
     const createChangeHandler = <T,>(setter: React.Dispatch<React.SetStateAction<T>>) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
@@ -132,35 +133,73 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigateToLogin, o
         return Object.keys(errors).length === 0;
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        let email = '';
+        let password = '';
+        let fullName = '';
+        let metaData: any = { account_type: accountType };
+        let successData: any = {};
+
         if (accountType === 'user') {
-            if (validateUserForm()) {
-                onRegisterSuccess({ email: userData.correo, name: `${userData.nombre} ${userData.apellido}`, accountType, plan: initialPlan });
-            }
+            if (!validateUserForm()) return;
+            email = userData.correo;
+            password = userData.contrasena;
+            fullName = `${userData.nombre} ${userData.apellido}`;
+            metaData.full_name = fullName;
+            successData = { email, name: fullName, accountType, plan: initialPlan };
         } else if (accountType === 'gym') {
-            if (validateGymForm()) {
-                onRegisterSuccess({ email: gymData.correo, name: gymData.nombreGimnasio, accountType, plan: initialPlan });
-            }
+            if (!validateGymForm()) return;
+            email = gymData.correo;
+            password = gymData.contrasena;
+            fullName = gymData.nombreGimnasio;
+            metaData.full_name = fullName;
+            metaData.nit = gymData.nit;
+            successData = { email, name: fullName, accountType, plan: initialPlan };
         } else if (accountType === 'entrenador') {
-            if (validateCoachForm()) {
-                onRegisterSuccess({
-                    email: coachData.correo,
-                    name: coachData.nombre,
-                    cc: coachData.cc,
-                    profession: coachData.profession,
-                    professionalDescription: coachData.professionalDescription,
-                    phone: coachData.phone,
-                    address: coachData.address,
-                    accountType,
-                    plan: initialPlan
-                });
+            if (!validateCoachForm()) return;
+            email = coachData.correo;
+            password = coachData.contrasena;
+            fullName = coachData.nombre;
+            metaData.full_name = fullName;
+            metaData.profession = coachData.profession;
+            successData = {
+                email,
+                name: fullName,
+                cc: coachData.cc,
+                profession: coachData.profession,
+                professionalDescription: coachData.professionalDescription,
+                phone: coachData.phone,
+                address: coachData.address,
+                accountType,
+                plan: initialPlan
+            };
+        }
+
+        try {
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: metaData
+                }
+            });
+
+            if (error) throw error;
+
+            if (data.user) {
+                console.log('Registro exitoso:', data.user);
+                onRegisterSuccess(successData);
             }
+        } catch (err: any) {
+            console.error('Registration Error:', err);
+            alert('Error al registrarse: ' + err.message);
         }
     };
-    
+
     const getTitle = () => {
-        switch(accountType) {
+        switch (accountType) {
             case 'user': return 'Usuario';
             case 'gym': return 'Gimnasio';
             case 'entrenador': return 'Entrenador';
@@ -187,7 +226,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigateToLogin, o
                         <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Crear Cuenta de {getTitle()} - Plan <span className="capitalize text-brand-primary">{initialPlan}</span></h2>
                         <p className="text-slate-500 dark:text-slate-400">Completa tu información para comenzar tu journey fitness</p>
                     </div>
-                    
+
                     {accountType === 'user' && (
                         <div className="space-y-4 mb-4">
                             <button
@@ -226,7 +265,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigateToLogin, o
                             </>
                         )}
                         {accountType === 'gym' && (
-                           <>
+                            <>
                                 <InputField id="nombreGimnasio" name="nombreGimnasio" label="Nombre del Gimnasio" placeholder="Mi Gimnasio Fitness" icon={<GymIcon />} value={gymData.nombreGimnasio} onChange={handleGymChange} error={gymErrors.nombreGimnasio} />
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <InputField id="nit" name="nit" label="NIT" placeholder="900.123.456-7" icon={<NitIcon />} value={gymData.nit} onChange={handleGymChange} error={gymErrors.nit} />
@@ -244,7 +283,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigateToLogin, o
                             </>
                         )}
                         {accountType === 'entrenador' && (
-                             <>
+                            <>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <InputField id="nombre" name="nombre" label="Nombre Completo" placeholder="Tu nombre completo" icon={<UserIcon />} value={coachData.nombre} onChange={handleCoachChange} error={coachErrors.nombre} />
                                     <InputField id="cc" name="cc" label="CC" placeholder="123.456.789-0" icon={<IdCardIcon />} value={coachData.cc} onChange={handleCoachChange} error={coachErrors.cc} />
