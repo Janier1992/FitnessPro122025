@@ -95,6 +95,13 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       // 'process.env.API_KEY': JSON.stringify(env.API_KEY || process.env.API_KEY) // Removed deprecated
-    }
+    },
+
+    resolve: {
+      // alias: { uuid: '...' } removed
+    },
+    optimizeDeps: {
+      include: ['uuid', '@supabase/supabase-js'],
+    },
   };
 });
