@@ -152,7 +152,7 @@ export const generateWorkoutPlan = async (profile: UserProfile, dailyStatus?: Da
             },
         });
 
-        const jsonString = response.text;
+        const jsonString = response.text || "{}";
         const parsedPlan = JSON.parse(jsonString) as WorkoutPlan;
 
         if (!parsedPlan.weeklyPlan || !Array.isArray(parsedPlan.weeklyPlan)) {
@@ -215,7 +215,7 @@ export const generateContextualInsight = async (status: DailyCheckin, userName: 
             }
         });
 
-        return JSON.parse(response.text) as AIInsight;
+        return JSON.parse(response.text || "{}") as AIInsight;
     } catch (error) {
         console.error("Error getting AI insight:", error);
         return {
@@ -259,16 +259,16 @@ export const getAICoachResponse = async (prompt: string): Promise<{ text: string
             }
         });
 
-        const text = response.text;
+        const text = response.text || "";
         const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
 
         let sources: { uri: string; title: string; }[] = [];
         if (groundingChunks) {
             sources = groundingChunks
-                .filter(chunk => chunk.web)
+                .filter(chunk => chunk.web && chunk.web.uri)
                 .map(chunk => ({
-                    uri: chunk.web.uri,
-                    title: chunk.web.title,
+                    uri: chunk.web?.uri || '',
+                    title: chunk.web?.title || 'Fuente web',
                 }));
         }
 
@@ -318,7 +318,7 @@ export const findGymsWithGemini = async (prompt: string, location: { latitude: n
             },
         });
 
-        const text = response.text;
+        const text = response.text || "";
         // Extract Google Maps grounding chunks correctly
         const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
 
@@ -328,10 +328,10 @@ export const findGymsWithGemini = async (prompt: string, location: { latitude: n
             sources = groundingChunks
                 .filter(chunk => chunk.maps)
                 .map(chunk => ({
-                    uri: chunk.maps.googleMapsUri || chunk.maps.uri || '', // Handle different possible URI fields
-                    title: chunk.maps.title || 'Ubicación en mapa',
+                    uri: (chunk.maps as any)?.googleMapsUri || (chunk.maps as any)?.uri || '',
+                    title: (chunk.maps as any)?.title || 'Ubicación en mapa',
                 }))
-                .filter(source => source.uri !== ''); // Ensure we have a valid link
+                .filter(source => source.uri !== '');
         }
 
         return { text, sources };

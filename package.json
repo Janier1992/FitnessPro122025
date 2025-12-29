@@ -9,12 +9,14 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "test": "vitest"
   },
   "dependencies": {
     "@google/genai": "^1.16.0",
     "@supabase/supabase-js": "^2.89.0",
     "dotenv": "^17.2.3",
+    "idb": "^8.0.3",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "uuid": "^13.0.0"
@@ -33,6 +35,12 @@
     "typescript": "^5.5.3",
     "vite": "^5.3.3",
     "vite-plugin-pwa": "^0.20.0",
-    "vitest": "^4.0.16"
+    "vitest": "^4.0.16",
+    "workbox-cacheable-response": "^7.4.0",
+    "workbox-core": "^7.4.0",
+    "workbox-expiration": "^7.4.0",
+    "workbox-precaching": "^7.4.0",
+    "workbox-routing": "^7.4.0",
+    "workbox-strategies": "^7.4.0"
   }
 }

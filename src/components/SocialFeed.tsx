@@ -19,7 +19,7 @@ const getActionIcon = (type: SocialActivity['type']) => {
 export const SocialFeed: React.FC<SocialFeedProps> = ({ activities }) => {
     const { showToast } = useFeedback();
 
-    const handleLike = (id: string) => {
+    const handleLike = (_id: string) => {
         // In a real app, this would update backend
         showToast('¡Le diste un pulgar arriba! 👍', 'success');
     };
@@ -46,7 +46,7 @@ export const SocialFeed: React.FC<SocialFeedProps> = ({ activities }) => {
                             </p>
                             <div className="flex items-center gap-3 mt-1">
                                 <p className="text-xs text-slate-400">{activity.timeAgo}</p>
-                                <button 
+                                <button
                                     onClick={() => handleLike(activity.id)}
                                     className="text-xs font-semibold text-slate-500 hover:text-brand-primary flex items-center gap-1 transition-colors"
                                 >

@@ -3,8 +3,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { type LibraryExercise, type ExerciseDifficulty } from '../types';
 
 interface ExerciseCardProps {
-  exercise: LibraryExercise;
-  onCardClick: () => void;
+    exercise: LibraryExercise;
+    onCardClick: () => void;
 }
 
 const difficultyStyles: Record<ExerciseDifficulty, string> = {
@@ -22,11 +22,11 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, onCardClic
         if (videoRef.current) {
             if (isHovering) {
                 // Reset to start if it ended
-                if(videoRef.current.ended) videoRef.current.currentTime = 0;
-                
+                if (videoRef.current.ended) videoRef.current.currentTime = 0;
+
                 const playPromise = videoRef.current.play();
                 if (playPromise !== undefined) {
-                    playPromise.catch(error => {
+                    playPromise.catch(() => {
                         // Auto-play was prevented or interrupted
                         // Silent fail is acceptable here as it reverts to poster
                     });
@@ -39,16 +39,16 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, onCardClic
     }, [isHovering]);
 
     return (
-        <button 
+        <button
             onClick={onCardClick}
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
             className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg hover:-translate-y-1 active:scale-95 text-left w-full group relative"
         >
-            
+
             <div className="relative aspect-video overflow-hidden bg-black">
                 {exercise.videoUrl ? (
-                    <video 
+                    <video
                         ref={videoRef}
                         src={exercise.videoUrl}
                         poster={exercise.imageUrl}
@@ -61,15 +61,15 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({ exercise, onCardClic
                 ) : (
                     <img src={exercise.imageUrl} alt={exercise.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 )}
-                
+
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 pointer-events-none"></div>
-                
+
                 <span className={`absolute top-3 right-3 px-2 py-1 text-[10px] font-bold uppercase tracking-wide rounded-md shadow-sm ${difficultyStyles[exercise.difficulty]} z-10`}>
                     {exercise.difficulty}
                 </span>
-                
+
                 {exercise.isPremium && (
-                     <span className="absolute top-3 left-3 bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm z-10">PREMIUM</span>
+                    <span className="absolute top-3 left-3 bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm z-10">PREMIUM</span>
                 )}
 
                 {exercise.videoUrl && (

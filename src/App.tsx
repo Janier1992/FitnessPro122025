@@ -1,5 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
+import { supabase } from './lib/supabase';
+import { supabaseService } from './services/supabaseService';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -9,6 +11,7 @@ import { GoogleLoginModal } from './components/GoogleLoginModal';
 import { OnboardingWizard } from './components/OnboardingWizard';
 import { FeedbackProvider } from './components/FeedbackSystem';
 import { ReloadPrompt } from './components/ReloadPrompt';
+import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 
 import { USERS_DATA } from './data/users';
 
@@ -46,18 +49,65 @@ const App: React.FC = () => {
   const [isGoogleLoginModalOpen, setIsGoogleLoginModalOpen] = useState(false);
   const [coachServices, setCoachServices] = useState<CoachService[]>([]);
 
-  // Fetch initial data from Supabase
+  // Fetch initial data from Supabase and Handle Auth
   useEffect(() => {
-    // Import dynamically to avoid top-level await issues if any, or just import at top
-    import('./services/supabaseService').then(({ supabaseService }) => {
-      supabaseService.getCoachServices()
-        .then(data => {
-          console.log('Services loaded from Supabase:', data.length);
-          setCoachServices(data);
-        })
-        .catch(err => console.error('Failed to load services:', err));
+    // 1. Fetch Services
+    supabaseService.getCoachServices()
+      .then(data => setCoachServices(data))
+      .catch(err => console.error('Failed to load services:', err));
+
+    // 2. Handle Session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) handleAuthUser(session.user);
     });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        handleAuthUser(session.user);
+      } else {
+        setCurrentUser(null);
+        // Don't force view change if user is manually navigating, 
+        // but if they were in main, go to landing? 
+        // For now, simple reset.
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  const handleAuthUser = async (authUser: any) => {
+    try {
+      const profile = await supabaseService.getUserProfile(authUser.id);
+      if (profile) {
+        // Construct User object from DB Profile + Auth Data
+        const newUser: User = {
+          name: profile.nombre_completo || authUser.email.split('@')[0],
+          email: authUser.email,
+          accountType: profile.tipo_cuenta || 'user',
+          plan: 'básico',
+          subscriptionStatus: 'trial',
+          isGymMember: false,
+          trialEndDate: null,
+          notifications: [],
+          hasCompletedOnboarding: !!profile.nombre_completo,
+          // Default props for Trainner/Gym if needed
+          ...(profile.tipo_cuenta === 'entrenador' ? { profession: '', availability: [] } : {})
+        };
+
+        setUsers(prev => {
+          if (prev.find(u => u.email === newUser.email)) return prev;
+          return [...prev, newUser];
+        });
+        setCurrentUser(newUser);
+
+        // Redirect to main if on landing/auth pages
+        setCurrentView(prev => (['landing', 'login', 'register'].includes(prev) ? 'main' : prev));
+      }
+    } catch (e) {
+      console.error("Error handling auth user:", e);
+    }
+  };
+
 
   // Efecto para aplicar el tema (oscuro/claro)
   useEffect(() => {
@@ -267,6 +317,7 @@ const App: React.FC = () => {
   return (
     <FeedbackProvider>
       <ReloadPrompt />
+      <PWAInstallPrompt />
       <a href="#main-content" className="skip-link">Saltar al contenido principal</a>
       {renderCurrentView()}
       {isGoogleLoginModalOpen && (

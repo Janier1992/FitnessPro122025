@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { findGymsWithGemini } from '../services/geminiService';
-import { LoadingSpinner } from '../components/LoadingSpinner';
+// import { LoadingSpinner } from '../components/LoadingSpinner';
 import { USERS_DATA } from '../data/users';
 
 const SearchIcon = () => (
@@ -95,7 +95,7 @@ export const ExploreGyms: React.FC = () => {
         const lowerName = placeName.toLowerCase();
         // Strict check against database
         const isRegistered = registeredGyms.some(gymName => lowerName.includes(gymName));
-        
+
         // FOR DEMO PURPOSES ONLY: 
         // Since we can't guarantee the user is near "Gimnasio El Templo", we simulate matches 
         // for common gym names so the reviewer can see the UI badge functionality.
@@ -135,7 +135,7 @@ export const ExploreGyms: React.FC = () => {
                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         ) : (
                             <>
-                                <SearchIcon /> 
+                                <SearchIcon />
                                 <span className="hidden sm:inline">Buscar</span>
                             </>
                         )}
@@ -169,7 +169,7 @@ export const ExploreGyms: React.FC = () => {
                     <div className="max-w-5xl mx-auto animate-fade-in">
                         {/* AI Summary */}
                         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800 p-6 rounded-2xl mb-8 border border-blue-100 dark:border-slate-700 flex gap-4 items-start">
-                             <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center text-2xl shadow-sm flex-shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center text-2xl shadow-sm flex-shrink-0">
                                 🤖
                             </div>
                             <div className="prose prose-sm prose-slate dark:prose-invert max-w-none">
@@ -206,25 +206,25 @@ export const ExploreGyms: React.FC = () => {
                                                         <MapPinIcon />
                                                     </div>
                                                 </div>
-                                                
+
                                                 <div className="p-5 flex flex-col flex-grow">
                                                     <h4 className="font-bold text-lg text-slate-800 dark:text-white mb-2 line-clamp-1 group-hover:text-brand-primary transition-colors">
                                                         {source.title}
                                                     </h4>
                                                     <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">
-                                                        {isPartner 
-                                                            ? "¡Este gimnasio usa FitnessFlow! Conecta tu cuenta para acceder automáticamente." 
+                                                        {isPartner
+                                                            ? "¡Este gimnasio usa FitnessFlow! Conecta tu cuenta para acceder automáticamente."
                                                             : "Haz clic para ver horarios, fotos y reseñas en Google Maps."}
                                                     </p>
-                                                    
+
                                                     <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700">
                                                         {isPartner ? (
-                                                             <button className="w-full flex items-center justify-center gap-2 text-sm font-bold text-white bg-brand-primary py-2 rounded-lg hover:bg-brand-secondary transition-colors shadow-lg shadow-brand-primary/20">
+                                                            <button className="w-full flex items-center justify-center gap-2 text-sm font-bold text-white bg-brand-primary py-2 rounded-lg hover:bg-brand-secondary transition-colors shadow-lg shadow-brand-primary/20">
                                                                 <VerifiedIcon />
                                                                 Ver Perfil Aliado
                                                             </button>
                                                         ) : (
-                                                            <a 
+                                                            <a
                                                                 href={source.uri}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"

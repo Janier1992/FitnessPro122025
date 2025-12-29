@@ -42,7 +42,7 @@ const getInsightStyles = (type: AIInsight['type']) => {
     }
 };
 
-export const AIGuideWidget: React.FC<AIGuideWidgetProps> = ({ insight, userName, onAction }) => {
+export const AIGuideWidget: React.FC<AIGuideWidgetProps> = ({ insight, userName: _userName, onAction }) => {
     const styles = getInsightStyles(insight.type);
 
     return (
@@ -70,10 +70,10 @@ export const AIGuideWidget: React.FC<AIGuideWidgetProps> = ({ insight, userName,
                     <h2 className="text-3xl md:text-4xl font-extrabold mb-2 tracking-tight leading-tight">{insight.title}</h2>
                     <p className={`${styles.text} max-w-lg text-lg font-medium leading-relaxed`}>{insight.message}</p>
                 </div>
-                
+
                 <div className="flex-shrink-0 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 shadow-inner flex flex-col items-center justify-center min-w-[120px]">
                     <span className="text-5xl mb-2 filter drop-shadow-md">{styles.icon}</span>
-                     <button 
+                    <button
                         onClick={onAction}
                         className="bg-white text-slate-900 font-bold py-2 px-4 rounded-lg hover:bg-slate-100 transition-colors text-sm w-full shadow-md whitespace-nowrap"
                     >

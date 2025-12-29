@@ -104,6 +104,26 @@ export const supabaseService = {
         }));
     },
 
+    // --- Users ---
+    /**
+     * Fetches user profile by ID.
+     * @param {string} userId - Auth User ID.
+     * @returns {Promise<any>} User profile object or null.
+     */
+    getUserProfile: async (userId: string): Promise<any> => {
+        const { data, error } = await supabase
+            .from('perfiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
+
+        if (error) {
+            console.error('Error fetching profile:', error);
+            return null;
+        }
+        return data;
+    },
+
     // --- Exercises ---
     /**
      * Fetches the exercise library from the database.

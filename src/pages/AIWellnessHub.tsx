@@ -191,17 +191,17 @@ const LiveCoach: React.FC = () => {
                     },
                     onmessage: async (message: LiveServerMessage) => {
                         if (message.serverContent?.inputTranscription) {
-                            setCurrentInterim(message.serverContent.inputTranscription.text);
+                            setCurrentInterim(message.serverContent?.inputTranscription?.text || '');
                         }
                         if (message.serverContent?.turnComplete) {
                             const userInput = currentInterim;
                             if (userInput) setTranscription(prev => [...prev, `Tú: ${userInput}`]);
                             setCurrentInterim('');
                         }
-                        const base64Audio = message.serverContent?.modelTurn?.parts[0]?.inlineData.data;
+                        const base64Audio = message.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
                         if (base64Audio) {
-                            if (message.serverContent.modelTurn.parts[0].text) {
-                                setTranscription(prev => [...prev, `AI: ${message.serverContent.modelTurn.parts[0].text}`]);
+                            if (message.serverContent?.modelTurn?.parts?.[0]?.text) {
+                                setTranscription(prev => [...prev, `AI: ${message.serverContent?.modelTurn?.parts?.[0]?.text}`]);
                             }
                             nextStartTime = Math.max(nextStartTime, outputAudioContext.currentTime);
                             const audioBuffer = await decodeAudioData(decode(base64Audio), outputAudioContext, 24000, 1);

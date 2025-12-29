@@ -18,20 +18,20 @@ const CheckIcon = () => (
 );
 
 const userPlans = [
-  {
-    name: 'Básico',
-    price: '15.000',
-    description: 'Perfecto para comenzar tu journey fitness',
-    features: ['Acceso al gimnasio', 'Rutinas básicas', 'Seguimiento de progreso', 'Biblioteca de ejercicios'],
-    isPopular: false,
-  },
-  {
-    name: 'Premium',
-    price: '20.000',
-    description: 'La experiencia completa para resultados serios',
-    features: ['Todo del plan Básico', 'Rutinas personalizadas', 'Clases grupales ilimitadas', 'AI Coach personalizado', 'Análisis de progreso avanzado'],
-    isPopular: true,
-  },
+    {
+        name: 'Básico',
+        price: '15.000',
+        description: 'Perfecto para comenzar tu journey fitness',
+        features: ['Acceso al gimnasio', 'Rutinas básicas', 'Seguimiento de progreso', 'Biblioteca de ejercicios'],
+        isPopular: false,
+    },
+    {
+        name: 'Premium',
+        price: '20.000',
+        description: 'La experiencia completa para resultados serios',
+        features: ['Todo del plan Básico', 'Rutinas personalizadas', 'Clases grupales ilimitadas', 'AI Coach personalizado', 'Análisis de progreso avanzado'],
+        isPopular: true,
+    },
 ];
 
 const gymPlans = [
@@ -51,7 +51,7 @@ const gymPlans = [
     }
 ];
 
-const PricingCard: React.FC<{ plan: typeof userPlans[0], planType: 'user' | 'gym', onSelect: (plan: 'básico' | 'premium') => void }> = ({ plan, planType, onSelect }) => (
+const PricingCard: React.FC<{ plan: typeof userPlans[0], planType: 'user' | 'gym', onSelect: (plan: 'básico' | 'premium') => void }> = ({ plan, planType: _planType, onSelect }) => (
     <div className={`border rounded-xl p-6 flex flex-col bg-white dark:bg-slate-800 dark:border-slate-700 ${plan.isPopular ? 'border-brand-primary border-2' : 'border-slate-200'}`}>
         {plan.isPopular && <span className="bg-brand-primary text-white text-xs font-bold px-3 py-1 rounded-full self-start mb-4">Más Popular</span>}
         <h3 className="text-xl font-bold text-slate-900 dark:text-white">{plan.name}</h3>
@@ -72,9 +72,9 @@ const PricingCard: React.FC<{ plan: typeof userPlans[0], planType: 'user' | 'gym
 );
 
 interface LandingPageProps {
-  onStartRegistration: (accountType: 'user' | 'gym', plan: 'básico' | 'premium') => void;
-  onNavigateToLogin: () => void;
-  onGuestLogin: () => void;
+    onStartRegistration: (accountType: 'user' | 'gym', plan: 'básico' | 'premium') => void;
+    onNavigateToLogin: () => void;
+    onGuestLogin: () => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onStartRegistration, onNavigateToLogin, onGuestLogin }) => {
@@ -110,14 +110,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartRegistration, o
                             <p className="mt-4 text-center lg:text-left text-sm text-slate-500 dark:text-slate-400">
                                 o <button onClick={onGuestLogin} className="font-semibold text-brand-primary hover:underline">Pruébalo como invitado</button>
                             </p>
-                             <div className="mt-12 flex justify-center lg:justify-start gap-8 text-slate-900 dark:text-white">
+                            <div className="mt-12 flex justify-center lg:justify-start gap-8 text-slate-900 dark:text-white">
                                 <div><p className="text-3xl font-bold">500+</p><p className="text-slate-500 dark:text-slate-400">Miembros Activos</p></div>
                                 <div><p className="text-3xl font-bold">10+</p><p className="text-slate-500 dark:text-slate-400">Entrenadores</p></div>
                                 <div><p className="text-3xl font-bold">50+</p><p className="text-slate-500 dark:text-slate-400">Clases Semanales</p></div>
                             </div>
                         </div>
                         <div className="relative">
-                           <img src="https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Persona levantando pesas" className="rounded-2xl shadow-2xl w-full" />
+                            <img src="https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Persona levantando pesas" className="rounded-2xl shadow-2xl w-full" />
                         </div>
                     </div>
                 </section>
@@ -130,7 +130,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartRegistration, o
                             FitnessFlow es tu aliado estratégico. Para nuestros usuarios, ofrecemos planes hiper-personalizados con IA para que alcancen sus metas de cardio y fuerza. Para los gimnasios, somos la herramienta definitiva para optimizar la gestión, aumentar la retención de miembros y potenciar los resultados de sus clientes.
                         </p>
                         <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
-                           {[
+                            {[
                                 { icon: <IconRutinas />, title: 'Rutinas Personalizadas', description: 'Obtén rutinas diseñadas específicamente para tus objetivos, nivel de experiencia y disponibilidad de tiempo.' },
                                 { icon: <IconClases />, title: 'Clases Grupales', description: 'Únete a clases de Yoga, Spinning, Zumba, CrossFit y más. Reserva tu lugar fácilmente.' },
                                 { icon: <IconSeguimiento />, title: 'Seguimiento de Progreso', description: 'Monitorea tu evolución con gráficos detallados de peso, medidas y rendimiento.' },
@@ -158,13 +158,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartRegistration, o
                             <button onClick={() => setPlanType('gym')} className={`px-6 py-2 rounded-full font-semibold transition-colors ${planType === 'gym' ? 'bg-white dark:bg-slate-700 shadow text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'}`}>Gimnasios</button>
                         </div>
                         <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                           {(planType === 'user' ? userPlans : gymPlans).map(plan => (
-                               <PricingCard key={plan.name} plan={plan} planType={planType} onSelect={handlePlanSelect} />
-                           ))}
+                            {(planType === 'user' ? userPlans : gymPlans).map(plan => (
+                                <PricingCard key={plan.name} plan={plan} planType={planType} onSelect={handlePlanSelect} />
+                            ))}
                         </div>
                     </div>
                 </section>
-                
+
                 {/* Nosotros Section */}
                 <section id="nosotros" className="bg-slate-50 dark:bg-slate-800 py-20 px-4">
                     <div className="container mx-auto grid lg:grid-cols-2 gap-12 items-center">

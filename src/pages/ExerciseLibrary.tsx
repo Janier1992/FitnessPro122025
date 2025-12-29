@@ -99,7 +99,7 @@ export const ExerciseLibrary: React.FC = () => {
                         <ExerciseCard
                             key={exercise.id}
                             exercise={exercise}
-                            onClick={() => setSelectedExercise(exercise)}
+                            onCardClick={() => setSelectedExercise(exercise)}
                         />
                     ))}
                 </div>

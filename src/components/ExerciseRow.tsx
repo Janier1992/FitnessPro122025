@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { type Exercise } from '../types';
 // import { EXERCISE_DATA } from '../data/exercises'; // Removed
 

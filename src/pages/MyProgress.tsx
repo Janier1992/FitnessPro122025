@@ -22,7 +22,7 @@ interface MyProgressProps {
     user: User;
 }
 
-export const MyProgress: React.FC<MyProgressProps> = ({ user }) => {
+export const MyProgress: React.FC<MyProgressProps> = ({ user: _user }) => {
     const { kpis, weeklyVolume, personalRecords, achievements, muscleFocus, weeklyComparison } = PROGRESS_DATA;
     const unlockedAchievements = achievements.filter(a => a.unlocked);
     const lockedAchievements = achievements.filter(a => !a.unlocked);
@@ -47,7 +47,7 @@ export const MyProgress: React.FC<MyProgressProps> = ({ user }) => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Left Column (Main Charts) */}
                 <div className="lg:col-span-2 space-y-8">
-                    
+
                     {/* Weekly Comparison Widget - NEW SECTION */}
                     <WeeklyComparisonWidget data={weeklyComparison} />
 
@@ -99,7 +99,7 @@ export const MyProgress: React.FC<MyProgressProps> = ({ user }) => {
                             ))}
                         </div>
                     </div>
-                     <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-100">
+                    <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-100">
                         <h2 className="text-xl font-bold text-slate-800 mb-4">Próximos Logros</h2>
                         <ul className="space-y-3">
                             {lockedAchievements.map(ach => (
@@ -114,7 +114,7 @@ export const MyProgress: React.FC<MyProgressProps> = ({ user }) => {
                         </ul>
                     </div>
                     <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-100">
-                         <div className="flex items-center gap-2 mb-4">
+                        <div className="flex items-center gap-2 mb-4">
                             <h2 className="text-xl font-bold text-slate-800">Enfoque Muscular</h2>
                         </div>
                         <div className="h-64">
