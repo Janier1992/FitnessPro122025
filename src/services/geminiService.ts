@@ -9,7 +9,6 @@ let ai: GoogleGenAI | null = null;
 export const initializeAI = (apiKey?: string) => {
     try {
         const key = apiKey || import.meta.env.VITE_GEMINI_API_KEY;
-        console.log("Initializing Gemini AI... Key present:", !!key);
         if (key && typeof key === 'string' && key.length > 0) {
             ai = new GoogleGenAI({ apiKey: key });
         } else {
