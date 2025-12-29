@@ -5,14 +5,23 @@ import { type UserProfile, type WorkoutPlan, type DailyCheckin, type AIInsight }
 // FIX: Safely initialize the AI client. We wrap this in a try-catch to prevents
 // the app from crashing on import if the environment variable is missing or malformed.
 let ai: GoogleGenAI | null = null;
-try {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (apiKey && typeof apiKey === 'string' && apiKey.length > 0) {
-        ai = new GoogleGenAI({ apiKey });
+
+export const initializeAI = (apiKey?: string) => {
+    try {
+        const key = apiKey || import.meta.env.VITE_GEMINI_API_KEY;
+        if (key && typeof key === 'string' && key.length > 0) {
+            ai = new GoogleGenAI({ apiKey: key });
+        } else {
+            ai = null;
+        }
+    } catch (e) {
+        console.warn("Gemini API client could not be initialized:", e);
+        ai = null;
     }
-} catch (e) {
-    console.warn("Gemini API client could not be initialized:", e);
-}
+};
+
+// Auto-initialize on import
+initializeAI();
 
 const workoutPlanSchema = {
     type: Type.OBJECT,

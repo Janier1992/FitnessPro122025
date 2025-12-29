@@ -3,22 +3,26 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import { supabaseService } from './services/supabaseService';
 import { LandingPage } from './pages/LandingPage';
+import { TermsPage } from './pages/TermsPage';
+import { PrivacyPage } from './pages/PrivacyPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { RecoverPasswordPage } from './pages/RecoverPasswordPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { MainApp } from './MainApp';
 import { SubscriptionPage } from './pages/SubscriptionPage';
-import { GoogleLoginModal } from './components/GoogleLoginModal';
 import { OnboardingWizard } from './components/OnboardingWizard';
 import { FeedbackProvider } from './components/FeedbackSystem';
 import { ReloadPrompt } from './components/ReloadPrompt';
 import { PWAInstallPrompt } from './components/PWAInstallPrompt';
+import { MusicPlayer } from './components/MusicPlayer';
 
 import { USERS_DATA } from './data/users';
 
 import { type Notification, type CoachService, type User, type Theme } from './types';
 
 // Definición de las vistas de la aplicación
-type AppView = 'landing' | 'login' | 'register' | 'subscription' | 'onboarding' | 'main';
+type AppView = 'landing' | 'login' | 'register' | 'subscription' | 'onboarding' | 'main' | 'terms' | 'privacy' | 'recover-password' | 'reset-password';
 
 // Estado para el proceso de registro
 type RegistrationState = {
@@ -46,7 +50,7 @@ const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentView, setCurrentView] = useState<AppView>('landing');
   const [registrationState, setRegistrationState] = useState<RegistrationState>({ accountType: 'user', plan: 'básico' });
-  const [isGoogleLoginModalOpen, setIsGoogleLoginModalOpen] = useState(false);
+
   const [coachServices, setCoachServices] = useState<CoachService[]>([]);
 
   // Fetch initial data from Supabase and Handle Auth
@@ -57,18 +61,26 @@ const App: React.FC = () => {
       .catch(err => console.error('Failed to load services:', err));
 
     // 2. Handle Session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) handleAuthUser(session.user);
+    // Validación estricta inicial
+    supabaseService.verifySession().then(async (user) => {
+      if (user) {
+        await handleAuthUser(user);
+      } else {
+        // Si no hay sesión válida en backend, limpiar todo localmente
+        await supabase.auth.signOut();
+        setCurrentUser(null);
+      }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        handleAuthUser(session.user);
-      } else {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setCurrentView('reset-password');
+      } else if (event === 'SIGNED_OUT') {
         setCurrentUser(null);
-        // Don't force view change if user is manually navigating, 
-        // but if they were in main, go to landing? 
-        // For now, simple reset.
+        setCurrentView('landing');
+      } else if (session?.user) {
+        // Verificar perfil en DB para evitar sesiones fantasma
+        await handleAuthUser(session.user);
       }
     });
 
@@ -78,6 +90,15 @@ const App: React.FC = () => {
   const handleAuthUser = async (authUser: any) => {
     try {
       const profile = await supabaseService.getUserProfile(authUser.id);
+
+      if (!profile) {
+        console.warn('Usuario autenticado pero sin perfil en BD. Cerrando sesión.');
+        await supabase.auth.signOut();
+        setCurrentUser(null);
+        setCurrentView('landing');
+        return;
+      }
+
       if (profile) {
         // Construct User object from DB Profile + Auth Data
         const newUser: User = {
@@ -149,15 +170,6 @@ const App: React.FC = () => {
     }
   };
 
-  // Manejadores para Login con Google
-  const handleGoogleLogin = () => {
-    setIsGoogleLoginModalOpen(true);
-  };
-
-  const handleGoogleAccountSelect = (account: { name: string; email: string }) => {
-    setIsGoogleLoginModalOpen(false);
-    handleLoginSuccess({ email: account.email });
-  };
 
   // Manejador de registro exitoso
   const handleRegisterSuccess = (data: Partial<User> & { email: string, accountType: 'user' | 'gym' | 'entrenador', plan: 'básico' | 'premium' }) => {
@@ -304,13 +316,23 @@ const App: React.FC = () => {
     }
 
     switch (currentView) {
-      case 'login': return <LoginPage onNavigateToRegister={() => handleStartRegistration('user', 'básico')} onLoginSuccess={handleLoginSuccess} onGoogleLogin={handleGoogleLogin} />;
-      case 'register': return <RegisterPage onNavigateToLogin={handleNavigateToLogin} onRegisterSuccess={handleRegisterSuccess} onGoogleLogin={handleGoogleLogin} initialAccountType={registrationState.accountType} initialPlan={registrationState.plan} />;
+      case 'login': return <LoginPage onNavigateToRegister={() => handleStartRegistration('user', 'básico')} onLoginSuccess={handleLoginSuccess} onNavigateToRecover={() => setCurrentView('recover-password')} />;
+      case 'recover-password': return <RecoverPasswordPage onNavigateToLogin={handleGoToLogin} />;
+      case 'reset-password': return <ResetPasswordPage onNavigateToLogin={handleGoToLogin} />;
+      case 'register': return <RegisterPage onNavigateToLogin={handleNavigateToLogin} onRegisterSuccess={handleRegisterSuccess} initialAccountType={registrationState.accountType} initialPlan={registrationState.plan} />;
+      case 'terms': return <TermsPage onNavigateToLogin={handleNavigateToLogin} onNavigateToHome={() => setCurrentView('landing')} />;
+      case 'privacy': return <PrivacyPage onNavigateToLogin={handleNavigateToLogin} onNavigateToHome={() => setCurrentView('landing')} />;
       case 'subscription': return <SubscriptionPage onSubscriptionSuccess={handleSubscriptionSuccess} isGymMember={currentUser?.isGymMember} />;
-      case 'onboarding': return currentUser ? <OnboardingWizard user={currentUser} onComplete={handleOnboardingComplete} /> : <LoginPage onNavigateToRegister={() => handleStartRegistration('user', 'básico')} onLoginSuccess={handleLoginSuccess} onGoogleLogin={handleGoogleLogin} />;
+      case 'onboarding': return currentUser ? <OnboardingWizard user={currentUser} onComplete={handleOnboardingComplete} /> : <LoginPage onNavigateToRegister={() => handleStartRegistration('user', 'básico')} onLoginSuccess={handleLoginSuccess} onNavigateToRecover={() => setCurrentView('recover-password')} />;
       case 'landing':
       default:
-        return <LandingPage onStartRegistration={handleStartRegistration} onNavigateToLogin={handleNavigateToLogin} onGuestLogin={handleGuestLogin} />;
+        return <LandingPage
+          onStartRegistration={handleStartRegistration}
+          onNavigateToLogin={handleNavigateToLogin}
+          onGuestLogin={handleGuestLogin}
+          onNavigateToTerms={() => setCurrentView('terms')}
+          onNavigateToPrivacy={() => setCurrentView('privacy')}
+        />;
     }
   };
 
@@ -318,14 +340,10 @@ const App: React.FC = () => {
     <FeedbackProvider>
       <ReloadPrompt />
       <PWAInstallPrompt />
+      <MusicPlayer />
       <a href="#main-content" className="skip-link">Saltar al contenido principal</a>
       {renderCurrentView()}
-      {isGoogleLoginModalOpen && (
-        <GoogleLoginModal
-          onClose={() => setIsGoogleLoginModalOpen(false)}
-          onSelectAccount={handleGoogleAccountSelect}
-        />
-      )}
+
     </FeedbackProvider>
   );
 };

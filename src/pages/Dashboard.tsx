@@ -47,7 +47,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
         } else {
             const savedData = JSON.parse(hasCheckedIn);
             setDailyStatus(savedData);
-            
+
             if (savedInsight) {
                 setAiInsight(JSON.parse(savedInsight));
             } else {
@@ -76,10 +76,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
         setShowCheckin(false);
         await fetchInsight(fullData);
     };
-    
+
     const handleAIAction = () => {
         if (!aiInsight) return;
-        switch(aiInsight.type) {
+        switch (aiInsight.type) {
             case 'recovery': onNavigate('Clases Grupales'); break;
             case 'performance': onNavigate('Mis Rutinas'); break;
             case 'caution': onNavigate('Bienestar AI'); break;
@@ -95,42 +95,62 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
 
     return (
         <div className="container mx-auto px-4 py-6 md:py-8 space-y-6 animate-fade-in max-w-7xl">
-            
+
             {/* Header Moderno */}
-            <div className="flex flex-col md:flex-row justify-between items-end pb-2">
-                <div>
-                    <p className="text-brand-primary text-sm font-mono mb-1">{new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
-                    <h1 className="text-4xl font-black text-white tracking-tight">
-                        Hola, <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">{user.name.split(' ')[0]}</span>
-                    </h1>
-                </div>
-                 <div className="hidden md:flex items-center gap-3 glass-panel px-4 py-2 rounded-full mt-4 md:mt-0">
-                    <span className="relative flex h-3 w-3">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                    </span>
-                    <p className="text-sm font-bold text-slate-300">Nivel {user.gamification?.level || 5}: <span className="text-white">{user.gamification?.title || 'Élite'}</span></p>
+            {/* SinFlow Hero Section */}
+            <div className="relative overflow-hidden rounded-3xl glass-panel p-6 md:p-8 mb-2 group">
+                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-brand-primary/10 blur-3xl rounded-full pointer-events-none group-hover:bg-brand-primary/20 transition-all duration-700"></div>
+                <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-brand-secondary/10 blur-3xl rounded-full pointer-events-none group-hover:bg-brand-secondary/20 transition-all duration-700"></div>
+
+                <div className="relative z-10 flex flex-col md:flex-row justify-between items-end gap-6">
+                    <div>
+                        <p className="text-brand-primary text-xs font-bold uppercase tracking-widest mb-3">
+                            {new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })}
+                        </p>
+                        <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-3">
+                            Hola, <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-secondary">{user.name.split(' ')[0]}</span>
+                        </h1>
+                        <p className="text-slate-400 max-w-lg text-sm md:text-base">
+                            ¿Listo para superar tus límites hoy? Tu entrenador AI está analizando tu progreso en tiempo real.
+                        </p>
+                    </div>
+
+                    {/* Level Badge Refined */}
+                    <div className="flex items-center gap-4 bg-black/20 border border-white/5 px-5 py-3 rounded-2xl backdrop-blur-md hover:border-brand-primary/30 transition-colors">
+                        <div className="relative">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center text-white font-bold shadow-neon">
+                                {user.gamification?.level || 5}
+                            </div>
+                            <div className="absolute -bottom-1 -right-1 bg-brand-dark rounded-full p-0.5">
+                                <span className="block w-3 h-3 bg-green-500 rounded-full border-2 border-brand-dark"></span>
+                            </div>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Rango Actual</span>
+                            <span className="text-base font-bold text-white">{user.gamification?.title || 'Élite'}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             {/* BENTO GRID LAYOUT */}
             <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-4 md:gap-6 auto-rows-[minmax(180px,auto)]">
-                
+
                 {/* 1. AI Hero Widget (Large, Col Span 2 or 3) */}
                 <div className="md:col-span-4 lg:col-span-3 row-span-1 min-h-[220px]">
                     {aiInsight ? (
-                        <AIGuideWidget 
-                            insight={aiInsight} 
-                            userName={user.name.split(' ')[0]} 
+                        <AIGuideWidget
+                            insight={aiInsight}
+                            userName={user.name.split(' ')[0]}
                             onAction={handleAIAction}
                         />
                     ) : (
-                         <div className="glass-panel rounded-2xl h-full flex items-center justify-center animate-pulse border border-white/5">
-                             <div className="flex flex-col items-center gap-3">
-                                 <div className="w-8 h-8 border-t-2 border-l-2 border-brand-primary rounded-full animate-spin"></div>
-                                 <p className="text-slate-400 font-mono text-sm">Sincronizando Neural Core...</p>
-                             </div>
-                         </div>
+                        <div className="glass-panel rounded-2xl h-full flex items-center justify-center animate-pulse border border-white/5">
+                            <div className="flex flex-col items-center gap-3">
+                                <div className="w-8 h-8 border-t-2 border-l-2 border-brand-primary rounded-full animate-spin"></div>
+                                <p className="text-slate-400 font-mono text-sm">Sincronizando Neural Core...</p>
+                            </div>
+                        </div>
                     )}
                 </div>
 
@@ -147,7 +167,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
                     <StatCard label="Calorías" value="2,150" trend="+12%" icon="🔥" delay="delay-[200ms]" />
                 </div>
                 <div className="md:col-span-2 lg:col-span-1">
-                     <StatCard label="Racha" value="5 Días" trend="En llamas" icon="⚡" delay="delay-[300ms]" />
+                    <StatCard label="Racha" value="5 Días" trend="En llamas" icon="⚡" delay="delay-[300ms]" />
                 </div>
 
                 {/* 4. Smart Recommendations (Wide) */}
@@ -169,7 +189,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
 
                 {/* 6. Action Cards */}
                 <div className="md:col-span-2 lg:col-span-2 grid grid-cols-2 gap-4">
-                    <div 
+                    <div
                         onClick={() => onNavigate('Explorar Gimnasios')}
                         className="glass-panel p-4 rounded-2xl cursor-pointer hover:border-brand-primary/50 transition-all group relative overflow-hidden"
                     >
@@ -182,11 +202,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
                             <p className="text-xs text-slate-400">Gimnasios cerca</p>
                         </div>
                     </div>
-                    <div 
+                    <div
                         onClick={() => onNavigate('Bienestar AI')}
                         className="glass-panel p-4 rounded-2xl cursor-pointer hover:border-brand-secondary/50 transition-all group relative overflow-hidden"
                     >
-                         <div className="absolute inset-0 bg-gradient-to-br from-brand-secondary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-brand-secondary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div className="relative z-10">
                             <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center mb-2 text-brand-secondary">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
@@ -196,7 +216,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
                         </div>
                     </div>
                 </div>
-                
+
                 {/* 7. Social & Leaderboard (Full Width Bottom) */}
                 <div className="md:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <LeaderboardWidget data={LEADERBOARD_DATA} currentUserId={user.name} />
@@ -204,11 +224,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
                 </div>
 
             </div>
-            
+
             {showCheckin && (
-                <DailyCheckinModal 
-                    userName={user.name.split(' ')[0]} 
-                    onComplete={handleCheckinComplete} 
+                <DailyCheckinModal
+                    userName={user.name.split(' ')[0]}
+                    onComplete={handleCheckinComplete}
                 />
             )}
         </div>

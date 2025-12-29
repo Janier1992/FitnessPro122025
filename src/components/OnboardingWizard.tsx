@@ -3,18 +3,43 @@ import React, { useState } from 'react';
 import { User } from '../types';
 import { FitnessFlowLogo } from './FormIcons';
 
+/**
+ * Propiedades del componente OnboardingWizard.
+ * @property {User} user - El objeto de usuario actual con su tipo de cuenta.
+ * @property {() => void} onComplete - Función callback que se ejecuta al finalizar el wizard.
+ */
 interface OnboardingWizardProps {
     user: User;
     onComplete: () => void;
 }
 
+/**
+ * Componente OnboardingWizard.
+ * 
+ * Gestiona el flujo de bienvenida y configuración inicial para nuevos usuarios.
+ * Renderiza contenido diferente basado en el tipo de usuario (user, gym, entrenador).
+ */
 export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComplete }) => {
+    // Estado para controlar el paso actual del wizard (0, 1, 2...)
     const [step, setStep] = useState(0);
 
+    /**
+     * Avanza al siguiente paso del wizard.
+     */
     const handleNext = () => {
         setStep(prev => prev + 1);
     };
 
+    /**
+     * Retrocede al paso anterior si no es el primero.
+     */
+    const handleBack = () => {
+        if (step > 0) setStep(prev => prev - 1);
+    };
+
+    /**
+     * Renderiza el contenido específico para usuarios estándar (atletas).
+     */
     const UserContent = () => {
         if (step === 0) return (
             <div className="text-center animate-fade-in">
@@ -38,11 +63,14 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                         </button>
                     ))}
                 </div>
+                <button onClick={handleBack} className="mt-6 text-slate-500 hover:text-brand-primary font-medium py-2 px-4 rounded transition-colors w-full text-center">
+                    Atrás
+                </button>
             </div>
         );
-         if (step === 2) return (
+        if (step === 2) return (
             <div className="text-center animate-fade-in">
-                 <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600">
+                <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                 </div>
                 <h2 className="text-2xl font-bold text-slate-800 mb-4">¡Todo Listo!</h2>
@@ -55,8 +83,11 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
         return null;
     };
 
+    /**
+     * Renderiza el contenido específico para administradores de gimnasios.
+     */
     const GymContent = () => {
-         if (step === 0) return (
+        if (step === 0) return (
             <div className="text-center animate-fade-in">
                 <div className="w-24 h-24 bg-brand-dark/10 rounded-full flex items-center justify-center mx-auto mb-6">
                     <span className="text-4xl">🏢</span>
@@ -77,18 +108,21 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                         <input type="number" className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-brand-dark" placeholder="Ej: 150" />
                     </div>
                     <div>
-                         <label className="block text-sm font-medium text-slate-700 mb-1">Horario de Apertura</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Horario de Apertura</label>
                         <input type="time" className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-brand-dark" defaultValue="06:00" />
                     </div>
-                     <button onClick={handleNext} className="w-full mt-4 bg-brand-dark text-white font-bold py-3 rounded-lg hover:bg-blue-700">
+                    <button onClick={handleNext} className="w-full mt-4 bg-brand-dark text-white font-bold py-3 rounded-lg hover:bg-blue-700">
                         Continuar
+                    </button>
+                    <button onClick={handleBack} className="w-full mt-2 text-slate-500 hover:text-brand-dark font-medium py-2 rounded-lg transition-colors">
+                        Atrás
                     </button>
                 </div>
             </div>
         );
         if (step === 2) return (
             <div className="text-center animate-fade-in">
-                 <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-brand-dark">
+                <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-brand-dark">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
                 <h2 className="text-2xl font-bold text-slate-800 mb-4">Configuración Completa</h2>
@@ -101,34 +135,39 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
         return null;
     }
 
+    /**
+     * Renderiza el contenido específico para entrenadores personales.
+     */
     const CoachContent = () => {
         if (step === 0) return (
             <div className="text-center animate-fade-in">
                 <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
                     <span className="text-4xl">🧢</span>
                 </div>
-                <h2 className="text-2xl font-bold text-slate-800 mb-4">Hola, Coach {user.name.split(' ')[0]}</h2>
-                <p className="text-slate-600 mb-8">Lleva tu carrera al siguiente nivel. Gestiona clientes y agenda sesiones fácilmente.</p>
+                <h2 className="text-2xl font-bold text-slate-800 mb-4">Hola, Coach {user.name.split(' ')[0]}</h2>\n                <p className="text-slate-600 mb-8">Lleva tu carrera al siguiente nivel. Gestiona clientes y agenda sesiones fácilmente.</p>
                 <button onClick={handleNext} className="bg-purple-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-purple-700 transition-transform transform hover:scale-105 shadow-lg">
                     Crear Perfil Pro
                 </button>
             </div>
         );
-         if (step === 1) return (
+        if (step === 1) return (
             <div className="animate-fade-in">
                 <h2 className="text-2xl font-bold text-slate-800 mb-6 text-center">Tu Especialidad</h2>
                 <div className="grid grid-cols-2 gap-4">
-                     {['Musculación', 'Yoga', 'CrossFit', 'Funcional', 'Rehabilitación', 'Nutrición'].map((spec) => (
+                    {['Musculación', 'Yoga', 'CrossFit', 'Funcional', 'Rehabilitación', 'Nutrición'].map((spec) => (
                         <button key={spec} onClick={handleNext} className="p-3 border rounded-lg hover:bg-purple-50 hover:border-purple-500 text-slate-700 font-medium transition-colors">
                             {spec}
                         </button>
                     ))}
                 </div>
+                <button onClick={handleBack} className="mt-6 text-slate-500 hover:text-purple-600 font-medium py-2 px-4 rounded transition-colors w-full text-center">
+                    Atrás
+                </button>
             </div>
         );
-         if (step === 2) return (
+        if (step === 2) return (
             <div className="text-center animate-fade-in">
-                 <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6 text-purple-600">
+                <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6 text-purple-600">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
                 <h2 className="text-2xl font-bold text-slate-800 mb-4">¡Perfil Listo!</h2>
@@ -148,7 +187,7 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                 <div className={`w-full md:w-2/5 p-8 flex flex-col justify-between text-white ${user.accountType === 'gym' ? 'bg-brand-dark' : user.accountType === 'entrenador' ? 'bg-purple-600' : 'bg-brand-primary'}`}>
                     <div>
                         <div className="bg-white/20 p-2 rounded-lg inline-block mb-4">
-                             <FitnessFlowLogo />
+                            <FitnessFlowLogo />
                         </div>
                         <h1 className="text-3xl font-extrabold mb-2">FitnessFlow</h1>
                         <p className="opacity-90">Configuración Inicial</p>
@@ -157,9 +196,9 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ user, onComp
                         <div className="flex items-center gap-2">
                             <div className={`w-3 h-3 rounded-full ${step >= 0 ? 'bg-white' : 'bg-white/30'}`}></div>
                             <div className={`h-1 flex-1 rounded-full ${step >= 1 ? 'bg-white' : 'bg-white/30'}`}></div>
-                             <div className={`w-3 h-3 rounded-full ${step >= 1 ? 'bg-white' : 'bg-white/30'}`}></div>
-                             <div className={`h-1 flex-1 rounded-full ${step >= 2 ? 'bg-white' : 'bg-white/30'}`}></div>
-                             <div className={`w-3 h-3 rounded-full ${step >= 2 ? 'bg-white' : 'bg-white/30'}`}></div>
+                            <div className={`w-3 h-3 rounded-full ${step >= 1 ? 'bg-white' : 'bg-white/30'}`}></div>
+                            <div className={`h-1 flex-1 rounded-full ${step >= 2 ? 'bg-white' : 'bg-white/30'}`}></div>
+                            <div className={`w-3 h-3 rounded-full ${step >= 2 ? 'bg-white' : 'bg-white/30'}`}></div>
                         </div>
                         <p className="text-xs opacity-75 text-right">Paso {step + 1} de 3</p>
                     </div>

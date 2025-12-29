@@ -37,21 +37,38 @@ const userPlans = [
 const gymPlans = [
     {
         name: 'Básico',
-        price: '50.000',
+        price: '70.000',
         description: 'Ideal para gimnasios pequeños que empiezan a digitalizarse',
         features: ['Gestión de hasta 100 miembros', 'Creación de clases y horarios', 'Panel de administración', 'Soporte por email'],
         isPopular: false,
     },
     {
         name: 'Premium',
-        price: '70.000',
+        price: '80.000',
         description: 'La solución completa para gestionar y hacer crecer tu gimnasio',
         features: ['Miembros ilimitados', 'Todo del plan Básico', 'Reportes de rendimiento avanzados', 'Portal de marca personalizada', 'Soporte prioritario 24/7'],
         isPopular: true,
     }
 ];
 
-const PricingCard: React.FC<{ plan: typeof userPlans[0], planType: 'user' | 'gym', onSelect: (plan: 'básico' | 'premium') => void }> = ({ plan, planType: _planType, onSelect }) => (
+const trainerPlans = [
+    {
+        name: 'Básico',
+        price: '20.000',
+        description: 'Herramientas esenciales para entrenadores independientes',
+        features: ['Hasta 20 alumnos', 'Rutinas ilimitadas', 'Seguimiento de progreso', 'Perfil profesional público'],
+        isPopular: false,
+    },
+    {
+        name: 'Premium',
+        price: '30.000',
+        description: 'Potencia tu marca personal y gestiona más clientes',
+        features: ['Alumnos ilimitados', 'Todo del plan Básico', 'Pagos en línea', 'Sitio web personal', 'Soporte prioritario'],
+        isPopular: true,
+    }
+];
+
+const PricingCard: React.FC<{ plan: typeof userPlans[0], planType: 'user' | 'gym' | 'trainer', onSelect: (plan: 'básico' | 'premium') => void }> = ({ plan, planType: _planType, onSelect }) => (
     <div className={`border rounded-xl p-6 flex flex-col bg-white dark:bg-slate-800 dark:border-slate-700 ${plan.isPopular ? 'border-brand-primary border-2' : 'border-slate-200'}`}>
         {plan.isPopular && <span className="bg-brand-primary text-white text-xs font-bold px-3 py-1 rounded-full self-start mb-4">Más Popular</span>}
         <h3 className="text-xl font-bold text-slate-900 dark:text-white">{plan.name}</h3>
@@ -72,13 +89,15 @@ const PricingCard: React.FC<{ plan: typeof userPlans[0], planType: 'user' | 'gym
 );
 
 interface LandingPageProps {
-    onStartRegistration: (accountType: 'user' | 'gym', plan: 'básico' | 'premium') => void;
+    onStartRegistration: (accountType: 'user' | 'gym' | 'entrenador', plan: 'básico' | 'premium') => void;
     onNavigateToLogin: () => void;
     onGuestLogin: () => void;
+    onNavigateToTerms: () => void;
+    onNavigateToPrivacy: () => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onStartRegistration, onNavigateToLogin, onGuestLogin }) => {
-    const [planType, setPlanType] = useState<'user' | 'gym'>('user');
+export const LandingPage: React.FC<LandingPageProps> = ({ onStartRegistration, onNavigateToLogin, onGuestLogin, onNavigateToTerms, onNavigateToPrivacy }) => {
+    const [planType, setPlanType] = useState<'user' | 'gym' | 'trainer'>('user');
 
     const handleScroll = (id: string) => {
         const element = document.getElementById(id);
@@ -88,7 +107,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartRegistration, o
     };
 
     const handlePlanSelect = (plan: 'básico' | 'premium') => {
-        onStartRegistration(planType, plan);
+        onStartRegistration(planType === 'trainer' ? 'entrenador' : planType, plan);
     };
 
     return (
@@ -102,7 +121,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartRegistration, o
                             <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 dark:text-white leading-tight">
                                 Tu <span className="text-brand-primary">transformación</span> comienza aquí
                             </h1>
-                            <p className="mt-6 text-lg text-slate-600 dark:text-slate-300 max-w-xl mx-auto lg:mx-0">Entrena con rutinas personalizadas, únete a clases grupales y alcanza tus objetivos con el apoyo de nuestros entrenadores expertos en el corazón de Medellín.</p>
+                            <p className="mt-6 text-lg text-slate-600 dark:text-slate-300 max-w-xl mx-auto lg:mx-0">Desarrollada en el corazón de Medellín, diseñada para transformar la vida fitness de personas, gimnasios y entrenadores en todo el país. Tecnología de clase mundial a tu alcance.</p>
                             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                                 <button onClick={() => onStartRegistration('user', 'básico')} className="bg-brand-primary text-white font-semibold py-3 px-6 rounded-lg hover:bg-brand-secondary transition-transform duration-300 transform hover:scale-105">Comenzar Ahora</button>
                                 <button onClick={() => handleScroll('plans')} className="bg-white dark:bg-slate-800 text-slate-700 dark:text-white font-semibold py-3 px-6 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Ver Planes</button>
@@ -156,9 +175,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartRegistration, o
                         <div className="mt-8 inline-flex bg-slate-100 dark:bg-slate-800 p-1 rounded-full">
                             <button onClick={() => setPlanType('user')} className={`px-6 py-2 rounded-full font-semibold transition-colors ${planType === 'user' ? 'bg-white dark:bg-slate-700 shadow text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'}`}>Usuario</button>
                             <button onClick={() => setPlanType('gym')} className={`px-6 py-2 rounded-full font-semibold transition-colors ${planType === 'gym' ? 'bg-white dark:bg-slate-700 shadow text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'}`}>Gimnasios</button>
+                            <button onClick={() => setPlanType('trainer')} className={`px-6 py-2 rounded-full font-semibold transition-colors ${planType === 'trainer' ? 'bg-white dark:bg-slate-700 shadow text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'}`}>Entrenadores</button>
                         </div>
                         <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                            {(planType === 'user' ? userPlans : gymPlans).map(plan => (
+                            {(planType === 'user' ? userPlans : planType === 'gym' ? gymPlans : trainerPlans).map(plan => (
                                 <PricingCard key={plan.name} plan={plan} planType={planType} onSelect={handlePlanSelect} />
                             ))}
                         </div>
@@ -170,12 +190,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartRegistration, o
                     <div className="container mx-auto grid lg:grid-cols-2 gap-12 items-center">
                         <div>
                             <span className="inline-block bg-green-100 dark:bg-green-900 text-brand-primary dark:text-green-300 font-semibold px-3 py-1 rounded-full text-sm mb-4">Nuestra Historia</span>
-                            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white">Nacidos de la pasión por la tecnología y el fitness</h2>
+                            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white">Innovación desde Medellín para el Mundo</h2>
                             <p className="mt-6 text-lg text-slate-600 dark:text-slate-300">
-                                Somos una pequeña startup que nace en el corazón de Medellín, fundada por tres socios apasionados por la tecnología y, en especial, por el poder transformador de la Inteligencia Artificial. Vimos una oportunidad de unir nuestras dos pasiones: el desarrollo de software y un estilo de vida saludable.
+                                En <strong>SinFlow</strong>, creemos que la tecnología es el motor del cambio. Nacimos como una startup tecnológica en Medellín con una visión clara: democratizar el acceso al bienestar físico mediante herramientas digitales avanzadas.
                             </p>
                             <p className="mt-4 text-lg text-slate-600 dark:text-slate-300">
-                                Nuestra misión es simple: democratizar el acceso a herramientas de fitness de élite. Creemos que todos, desde el atleta individual hasta el gimnasio de barrio, merecen la mejor tecnología para alcanzar sus metas. FitnessFlow es nuestro primer paso para inspirar confianza, motivar a otros a creer en sus sueños y construir una comunidad más fuerte y saludable, un entrenamiento a la vez.
+                                Combinamos inteligencia artificial, diseño centrado en el usuario y una profunda pasión por el fitness para crear soluciones que empoderan a gimnasios, entrenadores y atletas. No solo creamos software; construimos puentes hacia una vida más saludable y activa para todos los colombianos.
                             </p>
                         </div>
                         <div>
@@ -185,7 +205,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartRegistration, o
                 </section>
 
             </main>
-            <LandingFooter />
+            <LandingFooter onNavigateToTerms={onNavigateToTerms} onNavigateToPrivacy={onNavigateToPrivacy} />
         </div>
     );
 };

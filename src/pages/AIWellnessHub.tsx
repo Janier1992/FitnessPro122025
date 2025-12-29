@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { getAICoachResponse, getDailyWellnessTip } from '../services/geminiService';
+import { getAICoachResponse, getDailyWellnessTip, generateFitnessVideoPreview } from '../services/geminiService';
 import { type ChatMessage } from '../types';
 import { User } from '../types';
 import { GoogleGenAI, LiveServerMessage, Modality, type Blob as GenAIBlob } from "@google/genai";
@@ -63,6 +63,8 @@ const LinkIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-4 w
 const MicIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}> <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-14 0m7 6v4m0 0H9m4 0h-4m-1-11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1h-2a1 1 0 01-1-1v-5z" /> </svg>);
 const StopIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}> <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /> <path strokeLinecap="round" strokeLinejoin="round" d="M9 10h6v4H9z" /> </svg>);
 
+const VideoIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}> <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /> </svg>);
+
 
 const AIMessage: React.FC<{ message: ChatMessage }> = ({ message }) => (
     <div className="flex gap-3 my-4">
@@ -122,6 +124,62 @@ const DailyTip: React.FC = () => {
                 <p className="text-yellow-800 text-sm animate-pulse">Generando tu consejo...</p>
             ) : (
                 <p className="text-yellow-800">{tip}</p>
+            )}
+        </div>
+    );
+};
+
+// Veo Video Generator Component
+const VideoGenerator: React.FC = () => {
+    const [prompt, setPrompt] = useState('');
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [videoUrl, setVideoUrl] = useState<string | null>(null);
+
+    const handleGenerate = async () => {
+        if (!prompt.trim()) return;
+        setIsGenerating(true);
+        setVideoUrl(null);
+        try {
+            const url = await generateFitnessVideoPreview(prompt);
+            if (url) {
+                setVideoUrl(url);
+            } else {
+                alert("No se pudo generar el video. Intenta de nuevo.");
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
+    return (
+        <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-100">
+            <h3 className="font-bold text-slate-800 mb-2 text-lg flex items-center gap-2">🎥 Generador de Video (Veo)</h3>
+            <p className="text-sm text-slate-500 mb-4">Visualiza ejercicios que no existen. Describe el movimiento.</p>
+
+            <div className="space-y-3">
+                <textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Ej: Squat futurista en marte con luces de neón"
+                    className="w-full p-3 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-primary focus:outline-none"
+                    rows={3}
+                />
+                <button
+                    onClick={handleGenerate}
+                    disabled={isGenerating || !prompt}
+                    className="w-full bg-indigo-600 text-white font-bold py-2 rounded-lg hover:bg-indigo-700 disabled:bg-slate-300 transition-colors flex justify-center items-center gap-2"
+                >
+                    {isGenerating ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <VideoIcon />}
+                    {isGenerating ? 'Generando (esto demora)...' : 'Generar Preview Veo'}
+                </button>
+            </div>
+
+            {videoUrl && (
+                <div className="mt-4 rounded-lg overflow-hidden border border-slate-200 animate-fade-in">
+                    <video src={videoUrl} controls autoPlay muted loop className="w-full aspect-video bg-black"></video>
+                </div>
             )}
         </div>
     );
@@ -387,6 +445,7 @@ export const AIWellnessHub: React.FC<AIWellnessHubProps> = ({ user }) => {
                 <div className="space-y-8">
                     <DailyTip />
                     <LiveCoach />
+                    <VideoGenerator />
                 </div>
             </div>
         </div>

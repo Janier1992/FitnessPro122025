@@ -2,8 +2,12 @@
 import { supabase } from '../lib/supabase';
 import { GroupClass, CoachService } from '../types';
 
-// Mappers to convert Spanish DB columns to English Frontend types
+// Mappers para convertir columnas de DB (Español) a tipos del Frontend (Inglés)
 
+/**
+ * Mapea un objeto de clase de la base de datos al tipo GroupClass.
+ * @param data - Datos crudos de la BD.
+ */
 const mapClassFromDB = (data: any): GroupClass => ({
     id: data.id,
     name: data.nombre,
@@ -17,11 +21,14 @@ const mapClassFromDB = (data: any): GroupClass => ({
     duration: data.duracion,
     price: data.precio,
     locationType: data.tipo_ubicacion,
-    // We need to fetch schedules separately or join them, for now assuming basic mapping
+    // Se necesita unir horarios por separado
     schedule: [],
-    // Map other fields as needed
 });
 
+/**
+ * Mapea un servicio de entrenador de la BD al tipo CoachService.
+ * @param data - Datos crudos de la BD.
+ */
 const mapServiceFromDB = (data: any): CoachService => ({
     id: data.id,
     serviceName: data.nombre_servicio,
@@ -32,21 +39,20 @@ const mapServiceFromDB = (data: any): CoachService => ({
     duration: data.duracion,
     price: data.precio,
     locationType: data.tipo_ubicacion,
-    availability: [] // availability needs separate fetch
+    availability: []
 });
 
 /**
- * Service object for interacting with the Supabase database.
- * Handles data fetching and mapping for Classes, Coach Services, and Exercises.
+ * Servicio para interactuar con la base de datos Supabase.
+ * Gestiona la obtención y mapeo de Clases, Servicios de Entrenador y Ejercicios.
  */
 export const supabaseService = {
 
-    // --- Classes ---
+    // --- Clases ---
     /**
-     * Fetches all available group classes from the database.
-     * Joins with 'horarios_clases' to get schedule details.
-     * @returns {Promise<GroupClass[]>} Arrays of GroupClass objects with English keys.
-     * @throws Will throw an error if the database query fails.
+     * Obtiene todas las clases grupales disponibles.
+     * Realiza un join con 'horarios_clases' para obtener detalles del cronograma.
+     * @returns {Promise<GroupClass[]>} Array de objetos GroupClass.
      */
     getClasses: async (): Promise<GroupClass[]> => {
         const { data: classesData, error } = await supabase
@@ -73,11 +79,11 @@ export const supabaseService = {
         }));
     },
 
-    // --- Services ---
+    // --- Servicios ---
     /**
-     * Fetches all coach services from the database.
-     * Joins with 'disponibilidad_servicios' to get availability details.
-     * @returns {Promise<CoachService[]>} Array of CoachService objects.
+     * Obtiene todos los servicios de entrenadores.
+     * Realiza un join con 'disponibilidad_servicios'.
+     * @returns {Promise<CoachService[]>} Array de servicios.
      */
     getCoachServices: async (): Promise<CoachService[]> => {
         const { data: servicesData, error } = await supabase
@@ -99,16 +105,25 @@ export const supabaseService = {
             ...mapServiceFromDB(s),
             availability: s.disponibilidad_servicios.map((d: any) => ({
                 day: d.dia_semana,
-                hours: [d.hora_inicio] // Simplified mapping
+                hours: [d.hora_inicio] // Mapping simplificado
             }))
         }));
     },
 
-    // --- Users ---
+    // --- Usuarios ---
     /**
-     * Fetches user profile by ID.
-     * @param {string} userId - Auth User ID.
-     * @returns {Promise<any>} User profile object or null.
+     * Verifica la sesión activa con el backend.
+     */
+    verifySession: async () => {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error || !user) return null;
+        return user;
+    },
+
+    /**
+     * Obtiene el perfil de usuario por ID.
+     * @param {string} userId - ID de autenticación del usuario.
+     * @returns {Promise<any>} Objeto del perfil o null si hay error.
      */
     getUserProfile: async (userId: string): Promise<any> => {
         const { data, error } = await supabase
@@ -124,12 +139,12 @@ export const supabaseService = {
         return data;
     },
 
-    // --- Exercises ---
+    // --- Ejercicios ---
     /**
-     * Fetches the exercise library from the database.
-     * @returns {Promise<any[]>} Array of exercise objects.
+     * Obtiene la biblioteca de ejercicios.
+     * @returns {Promise<any[]>} Array de ejercicios.
      */
-    getExercises: async (): Promise<any[]> => { // Using any for now or specific type
+    getExercises: async (): Promise<any[]> => {
         const { data, error } = await supabase
             .from('ejercicios_biblioteca')
             .select('*');
@@ -143,7 +158,7 @@ export const supabaseService = {
             imageUrl: e.imagen_url,
             videoUrl: e.video_url,
             difficulty: e.dificultad,
-            tags: e.categoria ? [e.categoria] : [], // Simplified
+            tags: e.categoria ? [e.categoria] : [],
             equipment: e.equipamiento,
             instructions: e.instrucciones || []
         }));

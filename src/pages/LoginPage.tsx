@@ -6,16 +6,16 @@ import {
     LockIcon,
     EyeOpenIcon,
     EyeClosedIcon,
-    GoogleIcon
+
 } from '../components/FormIcons';
 
 interface LoginPageProps {
     onNavigateToRegister: () => void;
+    onNavigateToRecover: () => void;
     onLoginSuccess: (data: { email: string; accountType: 'user' | 'gym' | 'entrenador' }) => void;
-    onGoogleLogin: () => void;
 }
 
-export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToRegister, onLoginSuccess, onGoogleLogin }) => {
+export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToRegister, onNavigateToRecover, onLoginSuccess }) => {
     const [accountType, setAccountType] = useState<'user' | 'gym' | 'entrenador'>('user');
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
@@ -96,19 +96,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToRegister, onLo
                     </div>
 
                     <div className="space-y-4">
-                        <button
-                            onClick={onGoogleLogin}
-                            className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-white font-bold hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary min-h-[44px]"
-                        >
-                            <GoogleIcon />
-                            Continuar con Google
-                        </button>
 
-                        <div className="flex items-center" aria-hidden="true">
-                            <hr className="flex-grow border-t border-slate-300 dark:border-slate-600" />
-                            <span className="px-3 text-sm text-slate-500 dark:text-slate-400 font-medium">O</span>
-                            <hr className="flex-grow border-t border-slate-300 dark:border-slate-600" />
-                        </div>
                     </div>
 
 
@@ -167,6 +155,15 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToRegister, onLo
                                 <p className="text-red-700 dark:text-red-300 text-sm font-medium">{error}</p>
                             </div>
                         )}
+                        <div className="flex justify-end text-sm">
+                            <button
+                                type="button"
+                                onClick={onNavigateToRecover}
+                                className="text-brand-primary hover:text-brand-primary-dark hover:underline focus:outline-none"
+                            >
+                                ¿Olvidaste tu contraseña?
+                            </button>
+                        </div>
 
                         <button
                             type="submit"

@@ -329,7 +329,14 @@ create or replace function public.handle_new_user()
 returns trigger as $$
 begin
   insert into public.perfiles (id, email, nombre_completo, tipo_cuenta, plan, estado_suscripcion)
-  values (new.id, new.email, new.raw_user_meta_data->>'full_name', 'user', 'básico', 'trial');
+  values (
+    new.id, 
+    new.email, 
+    coalesce(new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'name', 'Usuario Nuevo'),
+    coalesce(new.raw_user_meta_data->>'account_type', 'user'),
+    coalesce(new.raw_user_meta_data->>'plan', 'básico'),
+    'trial'
+  );
   return new;
 end;
 $$ language plpgsql security definer;

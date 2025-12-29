@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PSEPaymentModal } from '../components/PSEPaymentModal';
+import { PaymentModal } from '../components/PaymentModal';
 
 const CheckIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-brand-primary" viewBox="0 0 20 20" fill="currentColor">
@@ -8,23 +8,23 @@ const CheckIcon = () => (
 );
 
 const userPlans = [
-  {
-    name: 'Básica',
-    price: '15.000',
-    description: 'Perfecto para comenzar tu journey fitness',
-    features: ['Acceso al gimnasio', 'Rutinas básicas', 'Seguimiento de progreso', 'Biblioteca de ejercicios'],
-    isPopular: false,
-  },
-  {
-    name: 'Premium',
-    price: '20.000',
-    description: 'La experiencia completa para resultados serios',
-    features: ['Todo del plan Básico', 'Rutinas personalizadas', 'Clases grupales ilimitadas', 'AI Coach personalizado', 'Análisis de progreso avanzado'],
-    isPopular: true,
-  },
+    {
+        name: 'Básica',
+        price: '15.000',
+        description: 'Perfecto para comenzar tu journey fitness',
+        features: ['Acceso al gimnasio', 'Rutinas básicas', 'Seguimiento de progreso', 'Biblioteca de ejercicios'],
+        isPopular: false,
+    },
+    {
+        name: 'Premium',
+        price: '20.000',
+        description: 'La experiencia completa para resultados serios',
+        features: ['Todo del plan Básico', 'Rutinas personalizadas', 'Clases grupales ilimitadas', 'AI Coach personalizado', 'Análisis de progreso avanzado'],
+        isPopular: true,
+    },
 ];
 
-const PricingCard: React.FC<{ plan: typeof userPlans[0], onSelectPlan: () => void }> = ({ plan, onSelectPlan }) => (
+const PricingCard: React.FC<{ plan: typeof userPlans[0], onSelectPlan: (plan: typeof userPlans[0]) => void }> = ({ plan, onSelectPlan }) => (
     <div className={`border rounded-xl p-6 flex flex-col ${plan.isPopular ? 'border-brand-primary border-2' : 'border-slate-200'}`}>
         {plan.isPopular && <span className="bg-brand-primary text-white text-xs font-bold px-3 py-1 rounded-full self-start mb-4">Más Popular</span>}
         <h3 className="text-xl font-bold">{plan.name}</h3>
@@ -38,31 +38,33 @@ const PricingCard: React.FC<{ plan: typeof userPlans[0], onSelectPlan: () => voi
                 </li>
             ))}
         </ul>
-        <button onClick={onSelectPlan} className={`w-full py-3 rounded-lg font-semibold transition-colors ${plan.isPopular ? 'bg-brand-primary text-white hover:bg-brand-secondary' : 'bg-white text-brand-primary border border-brand-primary hover:bg-green-50'}`}>
+        <button onClick={() => onSelectPlan(plan)} className={`w-full py-3 rounded-lg font-semibold transition-colors ${plan.isPopular ? 'bg-brand-primary text-white hover:bg-brand-secondary' : 'bg-white text-brand-primary border border-brand-primary hover:bg-green-50'}`}>
             Elegir Plan
         </button>
     </div>
 );
 
 interface SubscriptionPageProps {
-  onSubscriptionSuccess: () => void;
-  isGymMember?: boolean;
+    onSubscriptionSuccess: () => void;
+    isGymMember?: boolean;
 }
 
 export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ onSubscriptionSuccess, isGymMember }) => {
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState<{ name: string, price: string } | null>(null);
 
-    const handleSelectPlan = () => {
+    const handleSelectPlan = (plan: typeof userPlans[0]) => {
+        setSelectedPlan({ name: plan.name, price: plan.price });
         setIsPaymentModalOpen(true);
     };
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
             {isGymMember ? (
-                 <div className="container mx-auto text-center max-w-xl">
+                <div className="container mx-auto text-center max-w-xl">
                     <div className="bg-white p-8 rounded-xl shadow-md border border-slate-200">
                         <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
-                             <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
@@ -71,7 +73,7 @@ export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ onSubscripti
                             Tu acceso a la plataforma ha sido suspendido porque tu pago se encuentra vencido.
                         </p>
                         <p className="mt-2 font-semibold text-slate-700">
-                           Por favor, contacta a la administración de tu gimnasio para renovar tu membresía y reactivar tu cuenta.
+                            Por favor, contacta a la administración de tu gimnasio para renovar tu membresía y reactivar tu cuenta.
                         </p>
                     </div>
                 </div>
@@ -81,19 +83,22 @@ export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ onSubscripti
                     <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
                         ¡Gracias por probar FitnessFlow! Para seguir disfrutando de todas las funcionalidades, por favor elige un plan.
                     </p>
-                    
+
                     <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
-                       {userPlans.map(plan => (
-                           <PricingCard key={plan.name} plan={plan} onSelectPlan={handleSelectPlan} />
-                       ))}
+                        {userPlans.map(plan => (
+                            <PricingCard key={plan.name} plan={plan} onSelectPlan={handleSelectPlan} />
+                        ))}
                     </div>
                 </div>
             )}
 
-            {isPaymentModalOpen && (
-                <PSEPaymentModal 
+            {isPaymentModalOpen && selectedPlan && (
+                <PaymentModal
+                    isOpen={isPaymentModalOpen}
                     onClose={() => setIsPaymentModalOpen(false)}
-                    onPaymentSuccess={onSubscriptionSuccess}
+                    onPaymentConfirm={onSubscriptionSuccess}
+                    planName={selectedPlan.name}
+                    price={selectedPlan.price}
                 />
             )}
         </div>

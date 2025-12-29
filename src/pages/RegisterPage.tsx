@@ -13,13 +13,13 @@ import {
     InfoIcon,
     PhoneIcon,
     LocationIcon,
-    GoogleIcon,
+
 } from '../components/FormIcons';
 
 interface RegisterPageProps {
     onNavigateToLogin: () => void;
     onRegisterSuccess: (data: Partial<User> & { email: string, accountType: 'user' | 'gym' | 'entrenador', plan: 'básico' | 'premium' }) => void;
-    onGoogleLogin: () => void;
+
     initialAccountType: 'user' | 'gym' | 'entrenador';
     initialPlan: 'básico' | 'premium';
 }
@@ -70,7 +70,7 @@ const initialGymData = { nombreGimnasio: '', nit: '', correo: '', contrasena: ''
 const initialCoachData = { nombre: '', cc: '', profession: '', professionalDescription: '', phone: '', address: '', correo: '', contrasena: '', confirmarContrasena: '', terminos: false };
 
 
-export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigateToLogin, onRegisterSuccess, onGoogleLogin, initialAccountType, initialPlan }) => {
+export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigateToLogin, onRegisterSuccess, initialAccountType, initialPlan }) => {
     const [accountType, setAccountType] = useState<'user' | 'gym' | 'entrenador'>(initialAccountType);
 
     // States for each form
@@ -189,8 +189,14 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigateToLogin, o
             if (error) throw error;
 
             if (data.user) {
-                console.log('Registro exitoso:', data.user);
-                onRegisterSuccess(successData);
+                if (data.session) {
+                    console.log('Registro exitoso (sesión activa):', data.user);
+                    onRegisterSuccess(successData);
+                } else {
+                    // Email confirmation required
+                    alert('Registro exitoso. Por favor revisa tu correo electrónico para confirmar tu cuenta antes de iniciar sesión.');
+                    onNavigateToLogin();
+                }
             }
         } catch (err: any) {
             console.error('Registration Error:', err);
@@ -210,10 +216,16 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigateToLogin, o
         <div className="min-h-screen bg-gradient-to-br from-green-400 via-teal-400 to-blue-500 flex items-center justify-center p-4 font-sans">
             <main className="w-full max-w-4xl mx-auto">
                 <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-xl shadow-2xl p-6 md:p-10 transition-colors duration-300">
-                    <div className="text-center mb-8">
+                    <div className="absolute top-6 left-6">
+                        <button onClick={onNavigateToLogin} className="text-slate-500 hover:text-brand-primary transition-colors flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+                            Volver
+                        </button>
+                    </div>
+                    <div className="text-center mb-8 mt-4">
                         <div className="inline-block bg-white dark:bg-slate-700 p-3 rounded-full shadow-md mb-3"><FitnessFlowLogo /></div>
                         <h1 className="text-3xl font-bold text-slate-800 dark:text-white">FitnessFlow</h1>
-                        <p className="text-slate-600 dark:text-slate-300">Únete a la comunidad fitness de Medellín</p>
+                        <p className="text-slate-600 dark:text-slate-300">Únete a la comunidad fitness de Colombia</p>
                     </div>
 
                     <div className="flex bg-slate-100 dark:bg-slate-700 p-1 rounded-full mb-6">
@@ -227,22 +239,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigateToLogin, o
                         <p className="text-slate-500 dark:text-slate-400">Completa tu información para comenzar tu journey fitness</p>
                     </div>
 
-                    {accountType === 'user' && (
-                        <div className="space-y-4 mb-4">
-                            <button
-                                onClick={onGoogleLogin}
-                                className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-white font-semibold hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors"
-                            >
-                                <GoogleIcon />
-                                Registrarse con Google
-                            </button>
-                            <div className="flex items-center">
-                                <hr className="flex-grow border-t border-slate-300 dark:border-slate-600" />
-                                <span className="px-3 text-sm text-slate-500 dark:text-slate-400">O</span>
-                                <hr className="flex-grow border-t border-slate-300 dark:border-slate-600" />
-                            </div>
-                        </div>
-                    )}
+
 
 
                     <form className="space-y-6" onSubmit={handleSubmit} noValidate>
