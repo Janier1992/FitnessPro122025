@@ -92,11 +92,21 @@ const App: React.FC = () => {
       const profile = await supabaseService.getUserProfile(authUser.id);
 
       if (!profile) {
-        console.warn('Usuario autenticado pero sin perfil en BD. Cerrando sesión.');
-        await supabase.auth.signOut();
-        setCurrentUser(null);
-        setCurrentView('landing');
-        return;
+        console.warn('Usuario sin perfil. Intentando auto-creación...');
+        // Intentar crear el perfil automáticamente si falla el trigger
+        const newProfile = await supabaseService.createUserProfile(authUser);
+        if (!newProfile) {
+          console.error('Fallo crítico: No se pudo crear perfil. Cerrando sesión.');
+          await supabase.auth.signOut();
+          setCurrentUser(null);
+          setCurrentView('landing');
+          return;
+        }
+        // Si se creó, usarlo recursivamente o setearlo aquí. 
+        // Mejor continuar con el flujo normal usando newProfile
+        // Asignamos newProfile a profile para que el bloque siguiente funcione
+        // (Variable reassignment via new variable name logic)
+        return handleAuthUser(authUser); // Retry recursion
       }
 
       if (profile) {
@@ -317,14 +327,14 @@ const App: React.FC = () => {
     }
 
     switch (currentView) {
-      case 'login': return <LoginPage onNavigateToRegister={() => handleStartRegistration('user', 'básico')} onLoginSuccess={handleLoginSuccess} onNavigateToRecover={() => setCurrentView('recover-password')} />;
+      case 'login': return <LoginPage onNavigateToRegister={() => handleStartRegistration('user', 'básico')} onNavigateToRecover={() => setCurrentView('recover-password')} />;
       case 'recover-password': return <RecoverPasswordPage onNavigateToLogin={handleGoToLogin} />;
       case 'reset-password': return <ResetPasswordPage onNavigateToLogin={handleGoToLogin} />;
       case 'register': return <RegisterPage onNavigateToLogin={handleNavigateToLogin} onRegisterSuccess={handleRegisterSuccess} initialAccountType={registrationState.accountType} initialPlan={registrationState.plan} />;
       case 'terms': return <TermsPage onNavigateToLogin={handleNavigateToLogin} onNavigateToHome={() => setCurrentView('landing')} />;
       case 'privacy': return <PrivacyPage onNavigateToLogin={handleNavigateToLogin} onNavigateToHome={() => setCurrentView('landing')} />;
       case 'subscription': return <SubscriptionPage onSubscriptionSuccess={handleSubscriptionSuccess} isGymMember={currentUser?.isGymMember} />;
-      case 'onboarding': return currentUser ? <OnboardingWizard user={currentUser} onComplete={handleOnboardingComplete} /> : <LoginPage onNavigateToRegister={() => handleStartRegistration('user', 'básico')} onLoginSuccess={handleLoginSuccess} onNavigateToRecover={() => setCurrentView('recover-password')} />;
+      case 'onboarding': return currentUser ? <OnboardingWizard user={currentUser} onComplete={handleOnboardingComplete} /> : <LoginPage onNavigateToRegister={() => handleStartRegistration('user', 'básico')} onNavigateToRecover={() => setCurrentView('recover-password')} />;
       case 'landing':
       default:
         return <LandingPage

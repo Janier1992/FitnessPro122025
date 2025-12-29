@@ -12,10 +12,10 @@ import {
 interface LoginPageProps {
     onNavigateToRegister: () => void;
     onNavigateToRecover: () => void;
-    onLoginSuccess: (data: { email: string; accountType: 'user' | 'gym' | 'entrenador' }) => void;
+
 }
 
-export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToRegister, onNavigateToRecover, onLoginSuccess }) => {
+export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToRegister, onNavigateToRecover }) => {
     const [accountType, setAccountType] = useState<'user' | 'gym' | 'entrenador'>('user');
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');

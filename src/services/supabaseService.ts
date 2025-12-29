@@ -125,15 +125,34 @@ export const supabaseService = {
      * @param {string} userId - ID de autenticación del usuario.
      * @returns {Promise<any>} Objeto del perfil o null si hay error.
      */
-    getUserProfile: async (userId: string): Promise<any> => {
+    async getUserProfile(userId: string) {
         const { data, error } = await supabase
             .from('perfiles')
             .select('*')
             .eq('id', userId)
             .single();
 
+        if (error || !data) return null;
+        return data;
+    },
+
+    async createUserProfile(user: any) {
+        const { data, error } = await supabase
+            .from('perfiles')
+            .insert([
+                {
+                    id: user.id,
+                    nombre_completo: user.user_metadata?.full_name || user.email?.split('@')[0],
+                    rol: 'usuario', // Default role
+                    tipo_cuenta: 'user',
+                    created_at: new Date().toISOString()
+                }
+            ])
+            .select()
+            .single();
+
         if (error) {
-            console.error('Error fetching profile:', error);
+            console.error('Error auto-creating profile:', error);
             return null;
         }
         return data;

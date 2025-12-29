@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://<GITHUB_USERNAME>.github.io/<REPO_NAME>",
+  "homepage": "https://Janier1992.github.io/FitnessPro122025",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
