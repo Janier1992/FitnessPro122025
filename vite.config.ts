@@ -22,8 +22,10 @@ export default defineConfig(({ mode }) => {
           background_color: '#0f172a',
           display: 'standalone',
           orientation: 'portrait',
-          scope: './',
+          id: '/',
           start_url: './',
+          categories: ['fitness', 'health', 'lifestyle'],
+          lang: 'es',
           icons: [
             {
               src: 'favicon.svg',

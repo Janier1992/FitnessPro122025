@@ -1,24 +1,40 @@
-# FitnessPro SaaS
+# FitnessPro SaaS 🏋️‍♂️
 
-Plataforma integral de gestión para gimnasios y entrenadores personales, potenciada con IA (Gemini) y Supabase.
+**FitnessPro** es una plataforma integral de gestión para gimnasios y entrenadores personales, potenciada con Inteligencia Artificial (Gemini) y Supabase. Diseñada transformar la experiencia de entrenamiento con tecnología de punta.
 
-## 🚀 Características
+## 🚀 Características Principales
 
-- **Gestión de Clases y Horarios**: Sistema completo de reservas.
-- **Biblioteca de Ejercicios**: +50 ejercicios con videos y descripciones detalladas.
-- **Panel de Entrenador**: KPIs, gestión de clientes y agenda.
-- **Bienestar AI**: Asistente virtual Gemini para recomendaciones personalizadas.
-- **Gamificación**: Sistema de niveles y recompensas para usuarios.
+### 🧠 Inteligencia Artificial (Gemini)
+- **Coach Virtual**: Asistente 24/7 para consultas de fitness y nutrición.
+- **Planes Personalizados**: Generación automática de rutinas basadas en objetivos.
+- **Análisis de Progreso**: Insights inteligentes sobre el rendimiento del usuario.
 
-## 🛠️ Tecnologías
+### 📱 PWA (Progressive Web App)
+- **Instalable**: Funciona como una app nativa en iOS, Android, Windows y Mac.
+- **Offline First**: Acceso a contenido básico sin conexión.
+- **Icono Premium**: Diseño vectorizado adaptable a cualquier dispositivo.
 
-- **Frontend**: React 18, Vite, TypeScript, TailwindCSS.
-- **Backend**: Supabase (PostgreSQL, Auth, RLS).
-- **IA**: Google Gemini API.
+### 💼 Gestión Integral
+- **Clases Grupales**: Reservas en tiempo real y gestión de aforos.
+- **Finanzas**: Control de pagos, membresías y facturación.
+- **CRM**: Gestión detallada de perfiles de clientes y seguimiento.
+
+## 🛠️ Stack Tecnológico
+
+- **Frontend**: React 19, Vite 6, TypeScript, TailwindCSS v3.
+- **Backend**: Supabase (PostgreSQL, Auth, Storage, Edge Functions).
+- **IA Core**: Google Gemini 2.0 Flash (via Google AI Studio).
 - **Testing**: Vitest, React Testing Library.
+- **Despliegue**: GitHub Pages (con GitHub Actions).
 
-## ⚙️ Instalación
+## ⚙️ Configuración y Despliegue
 
+### Requisitos Previos
+- Node.js v18+
+- Cuenta en Supabase
+- API Key de Google Gemini
+
+### Instalación Local
 1.  Clonar el repositorio:
     ```bash
     git clone https://github.com/Janier1992/FitnessPro122025.git
@@ -27,39 +43,27 @@ Plataforma integral de gestión para gimnasios y entrenadores personales, potenc
     ```bash
     npm install
     ```
-3.  Configurar variables de entorno (`.env`):
-    ```env
-    VITE_SUPABASE_URL=your_supabase_url
-    VITE_SUPABASE_ANON_KEY=your_supabase_key
-    VITE_GEMINI_API_KEY=your_gemini_key
-    ```
-4.  Ejecutar servidor de desarrollo:
+3.  Configurar `.env` (ver `.env.example`).
+4.  Iniciar desarrollo:
     ```bash
     npm run dev
     ```
 
-## 🧪 Pruebas
+### Despliegue en GitHub Pages
+Este proyecto está configurado para desplegarse automáticamente en GitHub Pages.
+1.  Subir cambios a la rama `main`.
+2.  En GitHub, ir a **Settings > Pages**.
+3.  Seleccionar Source: `gh-pages` (o configurar Action personalizada).
 
-Ejecutar suite de pruebas:
-```bash
-npm run test
-```
+## 📦 Estructura del Proyecto
 
-## 📂 Estructura del Proyecto
+- `/src`: Código fuente de la aplicación.
+- `/public`: Assets estáticos e iconos PWA.
+- `/supabase`: Esquemas y migraciones de base de datos.
 
-```
-src/
-├── components/   # Componentes UI reutilizables
-├── pages/        # Vistas principales (Dashboard, Clases, etc.)
-├── services/     # Lógica de negocio y llamadas a API (Supabase, Gemini)
-├── types/        # Definiciones TypeScript compartidas
-└── lib/          # Configuración de clientes externos
-```
+## 📄 Licencia
 
-## 🤝 Contribución
+Este proyecto está bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
 
-1.  Fork del proyecto.
-2.  Crear rama de feature (`git checkout -b feature/AmazingFeature`).
-3.  Commit de cambios (`git commit -m 'Add some AmazingFeature'`).
-4.  Push a la rama (`git push origin feature/AmazingFeature`).
-5.  Abrir Pull Request.
+---
+Desarrollado con ❤️ para la comunidad fitness.
