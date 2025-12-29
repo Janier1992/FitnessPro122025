@@ -26,6 +26,22 @@ export default defineConfig(({ mode }) => {
           start_url: './',
           categories: ['fitness', 'health', 'lifestyle'],
           lang: 'es',
+          shortcuts: [
+            {
+              name: 'Mis Rutinas',
+              short_name: 'Rutinas',
+              description: 'Ver mis rutinas de entrenamiento',
+              url: '/rutinas',
+              icons: [{ src: 'favicon.svg', sizes: '192x192' }]
+            },
+            {
+              name: 'Dashboard',
+              short_name: 'Inicio',
+              description: 'Ir al panel principal',
+              url: '/',
+              icons: [{ src: 'favicon.svg', sizes: '192x192' }]
+            }
+          ],
           icons: [
             {
               src: 'favicon.svg',
@@ -36,7 +52,6 @@ export default defineConfig(({ mode }) => {
           ]
         },
         workbox: {
-          // Estrategia de caché para asegurar que la app cargue rápido
           globPatterns: ['**/*.{js,css,html,ico,png,svg,json}'],
           runtimeCaching: [
             {
@@ -46,7 +61,22 @@ export default defineConfig(({ mode }) => {
                 cacheName: 'google-fonts-cache',
                 expiration: {
                   maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+                  maxAgeSeconds: 60 * 60 * 24 * 365
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
+            },
+            {
+              // Cache Supabase API requests
+              urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/v1\/.*/i,
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'api-cache',
+                expiration: {
+                  maxEntries: 100,
+                  maxAgeSeconds: 60 * 60 * 24 // 24 hours
                 },
                 cacheableResponse: {
                   statuses: [0, 200]

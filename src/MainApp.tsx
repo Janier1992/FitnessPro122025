@@ -12,6 +12,7 @@ import { AIWellnessHub } from './pages/AIWellnessHub';
 import { ExploreGyms } from './pages/ExploreGyms';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { OnboardingTour } from './components/OnboardingTour';
+import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 
 // Páginas de Gimnasio
 import { GymDashboard } from './pages/GymDashboard';
@@ -323,6 +324,7 @@ export const MainApp: React.FC<MainAppProps> = ({ user, users, onLogout, theme, 
                     <OnboardingTour steps={getTourSteps()} onComplete={handleTourComplete} />
                 </div>
             )}
+            <PWAInstallPrompt />
         </div>
     );
 };
