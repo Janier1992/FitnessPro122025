@@ -207,7 +207,8 @@ const App: React.FC = () => {
     }
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setCurrentUser(null);
     setCurrentView('landing');
   };

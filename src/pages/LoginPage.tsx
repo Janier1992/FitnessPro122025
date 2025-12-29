@@ -40,10 +40,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToRegister, onNa
 
             if (data.user) {
                 console.log('Login exitoso:', data.user);
-                // Notificar a App.tsx (que buscará el usuario o lo cargará)
-                // NOTA: Como App.tsx usa estado local, idealmente aquí buscaríamos el perfil
-                // y lo pasaríamos, pero por ahora mantenemos el contrato por email.
-                onLoginSuccess({ email: data.user.email!, accountType });
+                // No need to manually call onLoginSuccess, App.tsx onAuthStateChange will handle it.
             }
         } catch (err: any) {
             console.error('Login error:', err);
