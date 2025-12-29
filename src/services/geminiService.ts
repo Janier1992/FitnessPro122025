@@ -152,7 +152,7 @@ export const generateWorkoutPlan = async (profile: UserProfile, dailyStatus?: Da
 
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
+            model: "gemini-1.5-flash",
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
@@ -215,7 +215,7 @@ export const generateContextualInsight = async (status: DailyCheckin, userName: 
 
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
+            model: "gemini-1.5-flash",
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
@@ -259,7 +259,7 @@ export const getAICoachResponse = async (prompt: string): Promise<{ text: string
 
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
+            model: "gemini-1.5-flash",
             contents: prompt,
             config: {
                 systemInstruction: systemInstruction,
@@ -314,7 +314,7 @@ export const findGymsWithGemini = async (prompt: string, location: { latitude: n
 
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
+            model: "gemini-1.5-flash",
             contents: prompt,
             config: {
                 systemInstruction,
@@ -378,7 +378,7 @@ export const getDailyWellnessTip = async (): Promise<string> => {
     `;
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
+            model: "gemini-1.5-flash",
             contents: prompt,
             config: {
                 // Lower temperature slightly for more consistent, high-quality tips.

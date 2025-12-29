@@ -159,191 +159,185 @@ const App: React.FC = () => {
     setCurrentView('register');
   };
 
-  setCurrentView('onboarding');
-}
-      }
-    } else {
-  alert("Usuario no encontrado.");
-}
+
+
+
+  // Manejador de registro exitoso
+  const handleRegisterSuccess = (data: Partial<User> & { email: string, accountType: 'user' | 'gym' | 'entrenador', plan: 'básico' | 'premium' }) => {
+    const newUser: User = {
+      name: data.name || 'Nuevo Usuario',
+      email: data.email,
+      password: data.password,
+      accountType: data.accountType,
+      plan: data.plan,
+      subscriptionStatus: 'trial',
+      isGymMember: false,
+      trialEndDate: new Date(new Date().setDate(new Date().getDate() + 14)), // Prueba de 14 días
+      notifications: [{ id: 1, message: '¡Bienvenido a tu prueba de FitnessFlow Pro!', date: new Date().toLocaleDateString(), read: false }],
+      hasCompletedOnboarding: false,
+      ...(data.accountType === 'user' && { profile: undefined }),
+      ...(data.accountType === 'entrenador' && {
+        profession: data.profession || '',
+        professionalDescription: data.professionalDescription || '',
+        phone: data.phone || '',
+        address: data.address || '',
+        cc: data.cc || '',
+        availability: [],
+      }),
+    };
+    setUsers(prev => [...prev, newUser]);
+    setCurrentUser(newUser);
+    setCurrentView('onboarding'); // Ir al onboarding en lugar del main
   };
 
-
-// Manejador de registro exitoso
-const handleRegisterSuccess = (data: Partial<User> & { email: string, accountType: 'user' | 'gym' | 'entrenador', plan: 'básico' | 'premium' }) => {
-  const newUser: User = {
-    name: data.name || 'Nuevo Usuario',
-    email: data.email,
-    password: data.password,
-    accountType: data.accountType,
-    plan: data.plan,
-    subscriptionStatus: 'trial',
-    isGymMember: false,
-    trialEndDate: new Date(new Date().setDate(new Date().getDate() + 14)), // Prueba de 14 días
-    notifications: [{ id: 1, message: '¡Bienvenido a tu prueba de FitnessFlow Pro!', date: new Date().toLocaleDateString(), read: false }],
-    hasCompletedOnboarding: false,
-    ...(data.accountType === 'user' && { profile: undefined }),
-    ...(data.accountType === 'entrenador' && {
-      profession: data.profession || '',
-      professionalDescription: data.professionalDescription || '',
-      phone: data.phone || '',
-      address: data.address || '',
-      cc: data.cc || '',
-      availability: [],
-    }),
-  };
-  setUsers(prev => [...prev, newUser]);
-  setCurrentUser(newUser);
-  setCurrentView('onboarding'); // Ir al onboarding en lugar del main
-};
-
-const handleOnboardingComplete = () => {
-  if (currentUser) {
-    const updatedUser = { ...currentUser, hasCompletedOnboarding: true };
-    handleUpdateUser(currentUser.email, updatedUser);
-    setCurrentView('main');
+  const handleOnboardingComplete = () => {
+    if (currentUser) {
+      const updatedUser = { ...currentUser, hasCompletedOnboarding: true };
+      handleUpdateUser(currentUser.email, updatedUser);
+      setCurrentView('main');
+    }
   }
-}
 
-const handleLogout = async () => {
-  await supabase.auth.signOut();
-  setCurrentUser(null);
-  setCurrentView('landing');
-};
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setCurrentUser(null);
+    setCurrentView('landing');
+  };
 
-const handleGuestLogin = () => {
-  setCurrentUser(GUEST_USER);
-  setCurrentView('main');
-};
-
-const handleGoToLogin = () => {
-  setCurrentUser(null);
-  setCurrentView('login');
-};
-
-const handleGoToRegister = () => {
-  setCurrentUser(null);
-  handleStartRegistration('user', 'básico');
-};
-
-// Manejador de suscripción exitosa
-const handleSubscriptionSuccess = () => {
-  if (currentUser) {
-    handleUpdateUser(currentUser.email, { ...currentUser, subscriptionStatus: 'subscribed' });
+  const handleGuestLogin = () => {
+    setCurrentUser(GUEST_USER);
     setCurrentView('main');
-  } else {
-    // Caso borde: usuario con sesión expirada forzado a página de suscripción
-    const lastAttemptedEmail = 'ana.garcia@email.com'; // Hack para demo
-    const user = users.find(u => u.email === lastAttemptedEmail);
-    if (user) {
-      const updatedUser: User = { ...user, subscriptionStatus: 'subscribed' };
-      setUsers(prev => prev.map(u => u.email === lastAttemptedEmail ? updatedUser : u));
-      setCurrentUser(updatedUser);
+  };
+
+  const handleGoToLogin = () => {
+    setCurrentUser(null);
+    setCurrentView('login');
+  };
+
+  const handleGoToRegister = () => {
+    setCurrentUser(null);
+    handleStartRegistration('user', 'básico');
+  };
+
+  // Manejador de suscripción exitosa
+  const handleSubscriptionSuccess = () => {
+    if (currentUser) {
+      handleUpdateUser(currentUser.email, { ...currentUser, subscriptionStatus: 'subscribed' });
       setCurrentView('main');
     } else {
-      setCurrentView('login');
+      // Caso borde: usuario con sesión expirada forzado a página de suscripción
+      const lastAttemptedEmail = 'ana.garcia@email.com'; // Hack para demo
+      const user = users.find(u => u.email === lastAttemptedEmail);
+      if (user) {
+        const updatedUser: User = { ...user, subscriptionStatus: 'subscribed' };
+        setUsers(prev => prev.map(u => u.email === lastAttemptedEmail ? updatedUser : u));
+        setCurrentUser(updatedUser);
+        setCurrentView('main');
+      } else {
+        setCurrentView('login');
+      }
     }
-  }
-};
+  };
 
-// --- Funciones de Administrador/Entrenador ---
+  // --- Funciones de Administrador/Entrenador ---
 
-const handleAddUser = (user: User) => setUsers(prev => [...prev, user]);
+  const handleAddUser = (user: User) => setUsers(prev => [...prev, user]);
 
-const handleUpdateUser = (originalEmail: string, updatedUser: User) => {
-  setUsers(prev => prev.map(u => (u.email === originalEmail ? updatedUser : u)));
-  if (currentUser && currentUser.email === originalEmail) {
-    setCurrentUser(updatedUser);
-  }
-};
+  const handleUpdateUser = (originalEmail: string, updatedUser: User) => {
+    setUsers(prev => prev.map(u => (u.email === originalEmail ? updatedUser : u)));
+    if (currentUser && currentUser.email === originalEmail) {
+      setCurrentUser(updatedUser);
+    }
+  };
 
-const handleDeleteUser = (email: string) => setUsers(prev => prev.filter(u => u.email !== email));
+  const handleDeleteUser = (email: string) => setUsers(prev => prev.filter(u => u.email !== email));
 
-// Sistema de Notificaciones
-const handleSendNotification = (userEmail: string, message: string) => {
-  setUsers(prev => prev.map(u => {
-    if (u.email === userEmail) {
-      const newNotif: Notification = {
-        id: Date.now(),
-        message,
-        date: new Date().toLocaleString(),
-        read: false,
+  // Sistema de Notificaciones
+  const handleSendNotification = (userEmail: string, message: string) => {
+    setUsers(prev => prev.map(u => {
+      if (u.email === userEmail) {
+        const newNotif: Notification = {
+          id: Date.now(),
+          message,
+          date: new Date().toLocaleString(),
+          read: false,
+        };
+        return { ...u, notifications: [newNotif, ...u.notifications] };
+      }
+      return u;
+    }));
+  };
+
+  const handleMarkNotificationsAsRead = () => {
+    if (currentUser) {
+      const updatedUser = {
+        ...currentUser,
+        notifications: currentUser.notifications.map(n => ({ ...n, read: true }))
       };
-      return { ...u, notifications: [newNotif, ...u.notifications] };
+      setCurrentUser(updatedUser);
+      setUsers(prev => prev.map(u => u.email === currentUser.email ? updatedUser : u));
     }
-    return u;
-  }));
-};
-
-const handleMarkNotificationsAsRead = () => {
-  if (currentUser) {
-    const updatedUser = {
-      ...currentUser,
-      notifications: currentUser.notifications.map(n => ({ ...n, read: true }))
-    };
-    setCurrentUser(updatedUser);
-    setUsers(prev => prev.map(u => u.email === currentUser.email ? updatedUser : u));
-  }
-}
-
-const handleAddService = (newServiceData: Omit<CoachService, 'id'>) => {
-  const newId = coachServices.length > 0 ? Math.max(...coachServices.map(s => s.id)) + 1 : 1;
-  const newService: CoachService = { id: newId, ...newServiceData };
-  setCoachServices(prev => [newService, ...prev]);
-};
-
-// --- Renderizado de Vistas ---
-
-const renderCurrentView = () => {
-  if (currentUser && currentView === 'main') {
-    return <MainApp
-      user={currentUser}
-      users={users}
-      onLogout={handleLogout}
-      theme={theme}
-      onToggleTheme={handleToggleTheme}
-      onAddUser={handleAddUser}
-      onUpdateUser={handleUpdateUser}
-      onDeleteUser={handleDeleteUser}
-      onSendNotification={handleSendNotification}
-      onMarkNotificationsAsRead={handleMarkNotificationsAsRead}
-      coachServices={coachServices}
-      onAddService={handleAddService}
-      onNavigateToLogin={handleGoToLogin}
-      onNavigateToRegister={handleGoToRegister}
-    />;
   }
 
-  switch (currentView) {
-    case 'login': return <LoginPage onNavigateToRegister={() => handleStartRegistration('user', 'básico')} onNavigateToRecover={() => setCurrentView('recover-password')} />;
-    case 'recover-password': return <RecoverPasswordPage onNavigateToLogin={handleGoToLogin} />;
-    case 'reset-password': return <ResetPasswordPage onNavigateToLogin={handleGoToLogin} />;
-    case 'register': return <RegisterPage onNavigateToLogin={handleNavigateToLogin} onRegisterSuccess={handleRegisterSuccess} initialAccountType={registrationState.accountType} initialPlan={registrationState.plan} />;
-    case 'terms': return <TermsPage onNavigateToLogin={handleNavigateToLogin} onNavigateToHome={() => setCurrentView('landing')} />;
-    case 'privacy': return <PrivacyPage onNavigateToLogin={handleNavigateToLogin} onNavigateToHome={() => setCurrentView('landing')} />;
-    case 'subscription': return <SubscriptionPage onSubscriptionSuccess={handleSubscriptionSuccess} isGymMember={currentUser?.isGymMember} />;
-    case 'onboarding': return currentUser ? <OnboardingWizard user={currentUser} onComplete={handleOnboardingComplete} /> : <LoginPage onNavigateToRegister={() => handleStartRegistration('user', 'básico')} onNavigateToRecover={() => setCurrentView('recover-password')} />;
-    case 'landing':
-    default:
-      return <LandingPage
-        onStartRegistration={handleStartRegistration}
-        onNavigateToLogin={handleNavigateToLogin}
-        onGuestLogin={handleGuestLogin}
-        onNavigateToTerms={() => setCurrentView('terms')}
-        onNavigateToPrivacy={() => setCurrentView('privacy')}
+  const handleAddService = (newServiceData: Omit<CoachService, 'id'>) => {
+    const newId = coachServices.length > 0 ? Math.max(...coachServices.map(s => s.id)) + 1 : 1;
+    const newService: CoachService = { id: newId, ...newServiceData };
+    setCoachServices(prev => [newService, ...prev]);
+  };
+
+  // --- Renderizado de Vistas ---
+
+  const renderCurrentView = () => {
+    if (currentUser && currentView === 'main') {
+      return <MainApp
+        user={currentUser}
+        users={users}
+        onLogout={handleLogout}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
+        onAddUser={handleAddUser}
+        onUpdateUser={handleUpdateUser}
+        onDeleteUser={handleDeleteUser}
+        onSendNotification={handleSendNotification}
+        onMarkNotificationsAsRead={handleMarkNotificationsAsRead}
+        coachServices={coachServices}
+        onAddService={handleAddService}
+        onNavigateToLogin={handleGoToLogin}
+        onNavigateToRegister={handleGoToRegister}
       />;
-  }
-};
+    }
 
-return (
-  <FeedbackProvider>
-    <ReloadPrompt />
-    <PWAInstallPrompt />
-    <MusicPlayer />
-    <a href="#main-content" className="skip-link">Saltar al contenido principal</a>
-    {renderCurrentView()}
+    switch (currentView) {
+      case 'login': return <LoginPage onNavigateToRegister={() => handleStartRegistration('user', 'básico')} onNavigateToRecover={() => setCurrentView('recover-password')} />;
+      case 'recover-password': return <RecoverPasswordPage onNavigateToLogin={handleGoToLogin} />;
+      case 'reset-password': return <ResetPasswordPage onNavigateToLogin={handleGoToLogin} />;
+      case 'register': return <RegisterPage onNavigateToLogin={handleNavigateToLogin} onRegisterSuccess={handleRegisterSuccess} initialAccountType={registrationState.accountType} initialPlan={registrationState.plan} />;
+      case 'terms': return <TermsPage onNavigateToLogin={handleNavigateToLogin} onNavigateToHome={() => setCurrentView('landing')} />;
+      case 'privacy': return <PrivacyPage onNavigateToLogin={handleNavigateToLogin} onNavigateToHome={() => setCurrentView('landing')} />;
+      case 'subscription': return <SubscriptionPage onSubscriptionSuccess={handleSubscriptionSuccess} isGymMember={currentUser?.isGymMember} />;
+      case 'onboarding': return currentUser ? <OnboardingWizard user={currentUser} onComplete={handleOnboardingComplete} /> : <LoginPage onNavigateToRegister={() => handleStartRegistration('user', 'básico')} onNavigateToRecover={() => setCurrentView('recover-password')} />;
+      case 'landing':
+      default:
+        return <LandingPage
+          onStartRegistration={handleStartRegistration}
+          onNavigateToLogin={handleNavigateToLogin}
+          onGuestLogin={handleGuestLogin}
+          onNavigateToTerms={() => setCurrentView('terms')}
+          onNavigateToPrivacy={() => setCurrentView('privacy')}
+        />;
+    }
+  };
 
-  </FeedbackProvider>
-);
+  return (
+    <FeedbackProvider>
+      <ReloadPrompt />
+      <PWAInstallPrompt />
+      <MusicPlayer />
+      <a href="#main-content" className="skip-link">Saltar al contenido principal</a>
+      {renderCurrentView()}
+
+    </FeedbackProvider>
+  );
 };
 
 export default App;

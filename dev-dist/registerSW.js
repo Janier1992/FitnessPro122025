@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/FitnessPro122025/dev-sw.js?dev-sw', { scope: '/FitnessPro122025/', type: 'module' })
