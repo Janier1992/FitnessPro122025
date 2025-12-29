@@ -11,7 +11,7 @@ import { FeedbackProvider } from './components/FeedbackSystem';
 import { ReloadPrompt } from './components/ReloadPrompt';
 
 import { USERS_DATA } from './data/users';
-import { USERS_DATA } from './data/users';
+
 import { type Notification, type CoachService, type User, type Theme } from './types';
 
 // Definición de las vistas de la aplicación
