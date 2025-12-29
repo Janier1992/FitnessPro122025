@@ -6,8 +6,8 @@
     "background_color": "#0f172a",
     "display": "standalone",
     "orientation": "portrait",
-    "id": "/",
     "start_url": "./",
+    "scope": "./",
     "categories": [
         "fitness",
         "health",

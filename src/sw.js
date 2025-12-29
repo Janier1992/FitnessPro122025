@@ -77,8 +77,8 @@ self.addEventListener('push', (event) => {
     const title = data.title || 'FitnessFlow Notificación';
     const options = {
         body: data.body || 'Tienes un nuevo mensaje.',
-        icon: '/pwa-192x192.png',
-        badge: '/pwa-192x192.png',
+        icon: './pwa-192x192.png',
+        badge: './pwa-192x192.png',
         data: data.url || '/'
     };
 
