@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // Reemplaza '<REPO_NAME>' con el nombre de tu repositorio de GitHub
-const repoName = 'fitness-flow-pro'; 
+const repoName = 'fitness-flow-pro';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
@@ -26,14 +26,8 @@ export default defineConfig(({ mode }) => {
           start_url: './',
           icons: [
             {
-              src: 'favicon.svg', // En producción, usa pwa-192x192.png
-              sizes: '192x192',
-              type: 'image/svg+xml',
-              purpose: 'any maskable'
-            },
-            {
-              src: 'favicon.svg', // En producción, usa pwa-512x512.png
-              sizes: '512x512',
+              src: 'favicon.svg',
+              sizes: '192x192 512x512',
               type: 'image/svg+xml',
               purpose: 'any maskable'
             }
@@ -61,9 +55,14 @@ export default defineConfig(({ mode }) => {
         }
       })
     ],
-    base: './', // Use relative base path for flexible deployment
+    base: '/FitnessPro122025/', // GitHub Pages repo name
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: './src/setupTests.ts',
+    },
     define: {
-      'process.env.API_KEY': JSON.stringify(env.API_KEY || process.env.API_KEY)
+      // 'process.env.API_KEY': JSON.stringify(env.API_KEY || process.env.API_KEY) // Removed deprecated
     }
   };
 });

@@ -35,9 +35,19 @@ const mapServiceFromDB = (data: any): CoachService => ({
     availability: [] // availability needs separate fetch
 });
 
+/**
+ * Service object for interacting with the Supabase database.
+ * Handles data fetching and mapping for Classes, Coach Services, and Exercises.
+ */
 export const supabaseService = {
 
     // --- Classes ---
+    /**
+     * Fetches all available group classes from the database.
+     * Joins with 'horarios_clases' to get schedule details.
+     * @returns {Promise<GroupClass[]>} Arrays of GroupClass objects with English keys.
+     * @throws Will throw an error if the database query fails.
+     */
     getClasses: async (): Promise<GroupClass[]> => {
         const { data: classesData, error } = await supabase
             .from('clases_disponibles')
@@ -64,6 +74,11 @@ export const supabaseService = {
     },
 
     // --- Services ---
+    /**
+     * Fetches all coach services from the database.
+     * Joins with 'disponibilidad_servicios' to get availability details.
+     * @returns {Promise<CoachService[]>} Array of CoachService objects.
+     */
     getCoachServices: async (): Promise<CoachService[]> => {
         const { data: servicesData, error } = await supabase
             .from('servicios_entrenador')
@@ -90,6 +105,10 @@ export const supabaseService = {
     },
 
     // --- Exercises ---
+    /**
+     * Fetches the exercise library from the database.
+     * @returns {Promise<any[]>} Array of exercise objects.
+     */
     getExercises: async (): Promise<any[]> => { // Using any for now or specific type
         const { data, error } = await supabase
             .from('ejercicios_biblioteca')
